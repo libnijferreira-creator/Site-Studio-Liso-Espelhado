@@ -47,3 +47,10 @@ deploy/oracle/oracle_key.*
 data/*.db
 data/*.db-wal
 data/*.db-shm
+
+# uploads feitos pelo painel (ficam em volume no servidor)
+public/uploads/
+uploads/
+
+# logs locais
+dev.log
