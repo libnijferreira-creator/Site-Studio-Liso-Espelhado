@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Studio Liso Espelhado com Beatriz Ribeiro</title>
+<meta name="description" content="Studio Liso Espelhado com Beatriz Ribeiro — agendamento online, serviços, promoções e resultados.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --rose:#b8546a;
+    --rose-dark:#8d3a4d;
+    --cream:#fbf6f4;
+    --ink:#2b2124;
+    --muted:#7a6a6f;
+    --gold:#c9a15a;
+    --line:rgba(43,33,36,.12);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:"Inter",system-ui,sans-serif;
+    color:var(--ink);
+    background:var(--cream);
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:"Playfair Display",Georgia,serif;font-weight:700;line-height:1.2}
+  a{color:inherit;text-decoration:none}
+  .wrap{width:min(1100px,92vw);margin-inline:auto}
+
+  header{
+    position:sticky;top:0;z-index:10;
+    background:rgba(251,246,244,.92);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .bar{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.9rem 0}
+  .brand{display:flex;align-items:center;gap:.6rem;font-weight:600;letter-spacing:.02em}
+  .brand .dot{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--rose),var(--gold));display:grid;place-items:center;color:#fff;font-family:"Playfair Display",serif;font-size:.95rem}
+  nav{display:flex;gap:1.4rem;flex-wrap:wrap;font-size:.93rem;color:var(--muted)}
+  nav a:hover{color:var(--rose)}
+  .btn{
+    display:inline-block;padding:.72rem 1.5rem;border-radius:999px;
+    background:var(--rose);color:#fff;font-size:.95rem;font-weight:600;
+    transition:background .2s ease,transform .2s ease;
+  }
+  .btn:hover{background:var(--rose-dark);transform:translateY(-2px)}
+  .btn.ghost{background:transparent;color:var(--rose);border:1px solid var(--rose)}
+
+  .hero{padding:5.5rem 0 4.5rem;background:
+    radial-gradient(1000px 400px at 15% -10%,rgba(201,161,90,.18),transparent 60%),
+    radial-gradient(800px 400px at 90% 10%,rgba(184,84,106,.16),transparent 60%);}
+  .hero h1{font-size:clamp(2.2rem,5.4vw,3.6rem);max-width:16ch}
+  .hero p.lead{margin-top:1.1rem;font-size:1.12rem;color:var(--muted);max-width:56ch}
+  .hero .cta{display:flex;gap:.8rem;margin-top:2rem;flex-wrap:wrap}
+  .eyebrow{display:inline-block;font-size:.78rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:1rem}
+
+  section{padding:4.2rem 0;border-top:1px solid var(--line)}
+  section h2{font-size:clamp(1.6rem,3.2vw,2.2rem);margin-bottom:.6rem}
+  .sub{color:var(--muted);max-width:60ch;margin-bottom:2.2rem}
+
+  .grid{display:grid;gap:1.2rem;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:1.5rem;transition:box-shadow .2s ease,transform .2s ease}
+  .card:hover{box-shadow:0 14px 34px rgba(43,33,36,.09);transform:translateY(-3px)}
+  .card h3{font-size:1.12rem;margin-bottom:.45rem}
+  .card p{color:var(--muted);font-size:.95rem}
+  .price{display:inline-block;margin-top:.9rem;font-size:.85rem;font-weight:600;color:var(--rose)}
+
+  .split{display:grid;gap:2.4rem;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));align-items:center}
+  .stats{display:flex;gap:2rem;flex-wrap:wrap;margin-top:1.6rem}
+  .stats div span{display:block;font-family:"Playfair Display",serif;font-size:1.9rem;color:var(--rose)}
+  .stats div small{color:var(--muted);font-size:.85rem}
+
+  .cta-band{background:linear-gradient(135deg,var(--rose),var(--rose-dark));color:#fff;border-radius:20px;padding:2.8rem;text-align:center}
+  .cta-band h2{color:#fff}
+  .cta-band p{opacity:.9;margin:.7rem auto 1.6rem;max-width:52ch}
+  .cta-band .btn{background:#fff;color:var(--rose-dark)}
+  .cta-band .btn:hover{background:var(--cream)}
+
+  footer{padding:3rem 0 4rem;border-top:1px solid var(--line);color:var(--muted);font-size:.92rem}
+  .foot{display:grid;gap:1.6rem;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+  footer h4{font-family:"Playfair Display",serif;color:var(--ink);margin-bottom:.6rem;font-size:1rem}
+  footer li{list-style:none;margin-bottom:.35rem}
+
+  @media (max-width:760px){
+    nav{display:none}
+    .hero{padding:3.4rem 0 3rem}
+    section{padding:3rem 0}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <a class="brand" href="#inicio"><span class="dot">SL</span> Studio Liso Espelhado</a>
+    <nav>
+      <a href="#inicio">Início</a>
+      <a href="#sobre">Sobre</a>
+      <a href="#servicos">Serviços</a>
+      <a href="#resultados">Resultados</a>
+      <a href="#contato">Contato</a>
+    </nav>
+    <a class="btn" href="#agendar">Agendar</a>
+  </div>
+</header>
+
+<main>
+
+  <section class="hero" id="inicio" style="border-top:0">
+    <div class="wrap">
+      <span class="eyebrow">Beatriz Ribeiro</span>
+      <h1>Beleza bem feita, do primeiro traço ao brilho final.</h1>
+      <p class="lead">Studio Liso Espelhado — manicure, pedicure, alongamento e cuidados com atendimento por horário, valorização do seu tempo e resultado impecável.</p>
+      <div class="cta">
+        <a class="btn" href="#agendar">Agendar agora</a>
+        <a class="btn ghost" href="#servicos">Ver serviços</a>
+      </div>
+      <div class="stats">
+        <div><span>15%</span><small>de taxa aplicada automaticamente</small></div>
+        <div><span>Online</span><small>agendamento 24 horas</small></div>
+        <div><span>1 a 1</span><small>atendimento exclusivo</small></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="sobre">
+    <div class="wrap split">
+      <div>
+        <span class="eyebrow">Sobre o studio</span>
+        <h2>Cuidado, higiene e atenção em cada detalhe</h2>
+        <p class="sub">Cada atendimento é preparado com material esterilizado, produto de qualidade e tempo reservado só para você. Aqui não existe fila: existe horário marcado e serviço bem acabado.</p>
+        <a class="btn ghost" href="#agendar">Reservar meu horário</a>
+      </div>
+      <div class="grid">
+        <div class="card"><h3>Higiene em primeiro lugar</h3><p>Instrumental esterilizado e descartáveis sempre novos a cada cliente.</p></div>
+        <div class="card"><h3>Agenda organizada</h3><p>Você escolhe o horário pelo site e recebe a confirmação na hora.</p></div>
+        <div class="card"><h3>Resultado consistente</h3><p>Técnica alinhada para unhas duráveis, leves e com acabamento espelhado.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="servicos">
+    <div class="wrap">
+      <span class="eyebrow">Serviços</span>
+      <h2>O que fazemos</h2>
+      <p class="sub">Escolha o serviço, veja o tempo de cada atendimento e agende em poucos cliques.</p>
+      <div class="grid">
+        <div class="card"><h3>Manicure</h3><p>Preparação, esmaltação e acabamento com cuidado e precisão.</p><span class="price">45 min</span></div>
+        <div class="card"><h3>Pedicure</h3><p>Cuidado completo com hidratação e acabamento impecável.</p><span class="price">45 min</span></div>
+        <div class="card"><h3>Alongamento</h3><p>Fibra de vidro e gel para unhas fortes, naturais e duradouras.</p><span class="price">1h30</span></div>
+        <div class="card"><h3>Manutenção</h3><p>Reposição da estrutura para manter o formato e o brilho.</p><span class="price">1h</span></div>
+        <div class="card"><h3>Esmaltação em gel</h3><p>Cor uniforme e brilho por semanas, sem descascar.</p><span class="price">1h</span></div>
+        <div class="card"><h3>Spa dos pés</h3><p>Relaxamento com esfoliação, massagem e hidratação profunda.</p><span class="price">1h</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="resultados">
+    <div class="wrap">
+      <span class="eyebrow">Resultados</span>
+      <h2>Clientes que voltam</h2>
+      <p class="sub">Um trabalho feito com constância é o que faz a diferença — veja o padrão de qualidade em cada atendimento.</p>
+      <div class="grid">
+        <div class="card"><h3>“Acabamento perfeito”</h3><p>Unha uniforme, sem rebarba e durando semanas. Já é minha casa.</p><span class="price">Marina C.</span></div>
+        <div class="card"><h3>“Nunca atrasa”</h3><p>Horário marcado no site e atendimento na hora exata. Muito organizado.</p><span class="price">Juliana P.</span></div>
+        <div class="card"><h3>“Cuidado em cada detalhe”</h3><p>Higiene impecável e um acabamento que ninguém acredita ser gel.</p><span class="price">Renata L.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="agendar">
+    <div class="wrap">
+      <div class="cta-band">
+        <h2>Agende o seu horário</h2>
+        <p>Escolha o serviço, a data e confirme em menos de um minuto — com taxa automática de 15% já calculada.</p>
+        <a class="btn" href="http://localhost:3000/agendar">Abrir agenda online</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="contato">
+    <div class="wrap foot">
+      <div>
+        <h4>Studio Liso Espelhado</h4>
+        <p>Com Beatriz Ribeiro<br>Atendimento por horário marcado</p>
+      </div>
+      <div>
+        <h4>Navegação</h4>
+        <ul>
+          <li><a href="#servicos">Serviços</a></li>
+          <li><a href="#resultados">Resultados</a></li>
+          <li><a href="#agendar">Agendar</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Horários</h4>
+        <ul>
+          <li>Seg a Sex — 09h às 19h</li>
+          <li>Sábado — 09h às 17h</li>
+          <li>Domingo — fechado</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>© <span id="ano"></span> Studio Liso Espelhado com Beatriz Ribeiro — Todos os direitos reservados.</p>
+  </div>
+</footer>
+
+<script>document.getElementById('ano').textContent = new Date().getFullYear();</script>
+</body>
+</html>
