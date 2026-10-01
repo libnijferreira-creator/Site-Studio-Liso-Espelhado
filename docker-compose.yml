@@ -1,0 +1,20 @@
+# Studio Liso Espelhado — sobe o site com Docker
+# Antes de rodar: edite ADMIN_PASSWORD e NEXT_PUBLIC_BASE_URL (abaixo).
+services:
+  studio:
+    build: .
+    image: studio-liso:latest
+    container_name: studio-liso
+    restart: unless-stopped
+    ports:
+      - "80:3000"
+    volumes:
+      # banco SQLite e fotos — persistem fora do container
+      - ./data:/app/data
+      - ./uploads:/app/public/uploads
+    environment:
+      # Usado APENAS na primeira inicialização (criação do banco).
+      ADMIN_USER: "admin"
+      ADMIN_PASSWORD: "TROQUE-ESTA-SENHA"
+      # Endereço público do site (coloque o IP ou domínio da instância).
+      NEXT_PUBLIC_BASE_URL: "http://TROQUE-SEU-IP"
