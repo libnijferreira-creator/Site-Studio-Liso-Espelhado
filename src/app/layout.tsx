@@ -25,16 +25,15 @@ const sans = Jost({
 /**
  * GOOGLE SEARCH CONSOLE — verificação por etiqueta HTML.
  *
- * Valor copiado do Search Console (Prefixo de URL → Etiqueta HTML) em
- * 04/10/2026. Enquanto estiver vazio, NENHUMA etiqueta é emitida no HTML
- * (não adianta usar placeholder: o Google rejeita).
+ * ⚠️ O token é POR PROPRIEDADE. O de outro domínio/prefixo dá erro
+ * "Sua metatag está incorreta" mesmo estando no ar.
+ * Propriedade: https://studiolisoespelhado.com.br/  (Prefixo do URL)
+ * Método: Tag HTML — pego em Configurações → Verificação do proprietário.
  *
- * Para trocar: gerar nova etiqueta em
- * https://search.google.com/search-console → Adicionar propriedade →
- * Prefixo de URL → https://studiolisoespelhado.com.br/ → Etiqueta HTML,
- * copiar só o valor de content="..." e colar abaixo.
+ * Enquanto estiver vazio, NENHUMA etiqueta é emitida no HTML (o Google
+ * rejeita placeholder).
  */
-const GOOGLE_SITE_VERIFICATION = "rlfKiBqDp3vj6obDTCkxp-pxKYdmGprYV1i8WnXyJA8";
+const GOOGLE_SITE_VERIFICATION = "1ATs7xf_mXWQ-sAH6WG2p6vF4Vz1brHX_D-2u4eg-U0";
 
 export function generateMetadata(): Metadata {
   const { seo, site } = getSiteSettings();
