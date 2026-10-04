@@ -43,13 +43,11 @@ export default function AgendarPage() {
   // Meios de pagamento cadastrados (Conteúdo → Pagamento) — passo 02.
   const meioPagamento = (() => {
     const p = settings.payment;
-    if (!p.enabled) return "PIX ou cartão, com aprovação imediata.";
+    if (!p.enabled) return "PIX, com aprovação imediata.";
     const partes: string[] = [];
     if (p.pixEnabled && p.pixKey)
       partes.push(`PIX na chave do studio${p.bank ? ` (${p.bank})` : ""}`);
-    if (p.cardEnabled)
-      partes.push(`cartão pelo aplicativo${p.bank ? ` ${p.bank}` : ""}`);
-    return `${partes.join(" ou ") || "PIX ou cartão"}, com envio do comprovante pelo WhatsApp.`;
+    return `${partes.join(" ou ") || "PIX"}, com envio do comprovante pelo WhatsApp.`;
   })();
 
   return (

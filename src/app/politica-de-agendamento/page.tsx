@@ -55,7 +55,7 @@ export default function PoliticaAgendamentoPage() {
               k: "Como é calculada",
               v: `${feePercent}% sobre o valor do procedimento, automaticamente.`,
             },
-            { k: "Quando é paga", v: "No ato da reserva, por PIX ou cartão, antes da confirmação." },
+            { k: "Quando é paga", v: "No ato da reserva, por PIX, antes da confirmação." },
             { k: "O que garante", v: "A reserva exclusiva do horário e a vaga na agenda." },
             { k: "O restante", v: "Pago diretamente no Studio, no dia do atendimento." },
             { k: "Reembolso", v: "Aplicam-se as regras de cancelamento abaixo." },
@@ -109,7 +109,7 @@ export default function PoliticaAgendamentoPage() {
           h: "Segurança do agendamento",
           p: [
             "Os dados informados são usados exclusivamente para confirmar a sua reserva e são tratados conforme a Política de Privacidade (LGPD).",
-            "O pagamento é processado pelo Mercado Pago — o Studio não armazena números de cartão.",
+            "O pagamento é feito por PIX e o Studio não armazena dados bancários nem informações de pagamento.",
           ],
         },
         {

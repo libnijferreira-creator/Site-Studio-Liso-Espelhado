@@ -88,6 +88,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, alreadyPaid: true });
   }
 
+  // Escopo pago: valor integral zera o restante; a taxa mantém o restante em
+  // aberto para ser quitado no studio no dia do atendimento.
+  const paidCents = Math.round((payment.transaction_amount ?? 0) * 100);
+  const paidFull = paidCents > 0 && paidCents >= appointment.total_cents;
+  const remainderCents = paidFull ? 0 : appointment.remainder_cents;
+
   // Verifica se o horário ainda está livre antes de travar (ignora a própria reserva).
   const availability = availableSlots(appointment.date, appointment.duration_min, {
     excludeId: appointment.id,
@@ -109,9 +115,9 @@ export async function POST(request: Request) {
   db.prepare(
     `UPDATE appointments
         SET payment_status = 'paid', status = 'confirmed',
-            transaction_id = ?, updated_at = datetime('now')
+            remainder_cents = ?, transaction_id = ?, updated_at = datetime('now')
       WHERE id = ?`
-  ).run(String(payment.id ?? ""), appointment.id);
+  ).run(remainderCents, String(payment.id ?? ""), appointment.id);
 
   // Pagamento aprovado: avisa os celulares cadastrados no painel.
   try {
@@ -127,7 +133,7 @@ export async function POST(request: Request) {
         time: appointment.time,
         totalCents: appointment.total_cents,
         feeCents: appointment.fee_cents,
-        remainderCents: appointment.remainder_cents,
+        remainderCents,
         hairSize: appointment.hair_size,
         hairSizeCents: appointment.hair_size_cents,
       },

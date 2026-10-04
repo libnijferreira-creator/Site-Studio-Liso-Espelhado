@@ -53,9 +53,13 @@ interface BookingResult {
   feePercent: number;
 }
 
+/** `fee` = só a taxa · `full` = valor integral — os dois pagos via PIX. */
+type Scope = "fee" | "full";
+
 interface PaymentSession {
   mode: "mercadopago" | "sandbox";
   method: "pix" | "card";
+  scope: Scope;
   amountCents: number;
   payload?: string;
   qrCodeBase64?: string;
@@ -94,7 +98,7 @@ export function BookingFlow({
   hours: WorkingHours[];
   schedule: Schedule;
   hairSizes: HairSizesSettings;
-  /** Dados de recebimento (PIX/cartão) — Conteúdo → Pagamento. */
+  /** Dados de recebimento (PIX) — Conteúdo → Pagamento. */
   payment: PaymentSettings;
   /** Dígitos do WhatsApp do studio (com DDI) para o comprovante. */
   studioWaLink: string;
@@ -116,6 +120,8 @@ export function BookingFlow({
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
   const [copied, setCopied] = useState(false);
   const [copiedPixKey, setCopiedPixKey] = useState(false);
+  // Qual cobrança está sendo gerada (só para o rótulo do botão).
+  const [paying, setPaying] = useState<string | null>(null);
   // Tamanho do cabelo escolhido no passo 1 (vazio = primeira opção).
   const [sizeId, setSizeId] = useState<string>("");
 
@@ -241,9 +247,10 @@ export function BookingFlow({
     }
   }
 
-  async function startPayment(method: "pix" | "card") {
+  async function startPayment(scope: Scope) {
     if (!result) return;
     setLoading(true);
+    setPaying(scope);
     setError(null);
     try {
       const res = await fetch("/api/booking/payment", {
@@ -251,7 +258,7 @@ export function BookingFlow({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           code: result.code,
-          method,
+          scope,
           payer: { name: client.name, email: client.email, cpf: client.cpf },
         }),
       });
@@ -264,6 +271,7 @@ export function BookingFlow({
       setError(e instanceof Error ? e.message : "Falha ao iniciar o pagamento.");
     } finally {
       setLoading(false);
+      setPaying(null);
     }
   }
 
@@ -275,7 +283,11 @@ export function BookingFlow({
       const res = await fetch("/api/booking/approve", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: result.code }),
+        body: JSON.stringify({
+          code: result.code,
+          // A tela sabe o que a cliente escolheu: integral não tem restante.
+          scope: session?.scope ?? "fee",
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Não foi possível confirmar.");
@@ -312,11 +324,18 @@ export function BookingFlow({
   // WhatsApp da Hadassa com a mensagem do comprovante pronta.
   const comprovanteLink = studioWaLink
     ? `https://wa.me/${studioWaLink}?text=${encodeURIComponent(
-        `Olá, Hadassa! Paguei a taxa de ${formatBRL(
-          session?.amountCents ?? fee
-        )} do agendamento${result ? ` ${result.code}` : ""} via PIX ou cartão. Segue o comprovante.`
+        `Olá, Hadassa! Paguei ${formatBRL(session?.amountCents ?? fee)} ${
+          session?.scope === "full"
+            ? "do valor integral do procedimento"
+            : "da taxa de agendamento"
+        } do agendamento${result ? ` ${result.code}` : ""}. Segue o comprovante.`
       )}`
     : "";
+
+  // Etapa 6: a chave PIX do studio serve para os dois escopos, porque ela
+  // aceita qualquer valor. O cartão saiu do fluxo — link de banco tem valor
+  // fixo e não acompanha os 30 preços de serviço.
+  const showPixKey = !!payment.enabled && !!payment.pixEnabled && !!payment.pixKey;
 
   function back() {
     setError(null);
@@ -671,19 +690,66 @@ export function BookingFlow({
                 value={formatBRL(fee)}
                 accent
               />
-              <div className="flex items-baseline justify-between gap-4 pt-5">
-                <span className="text-[13px] uppercase tracking-[0.2em] text-espresso-soft/75">
-                  Total à vista
-                </span>
-                <span className="font-display text-[32px] leading-none text-gold-deep">
-                  {formatBRL(fee)}
-                </span>
+              <div className="pt-5">
+                <p className="eyebrow mb-4">Como você prefere pagar?</p>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {/* Integral — PIX */}
+                  <div className="border border-gold/60 bg-white p-5">
+                    <p className="text-[13px] uppercase tracking-[0.2em] text-espresso-soft/75">
+                      Pagar o valor integral agora
+                    </p>
+                    <p className="mt-2 font-display text-[32px] leading-none text-gold-deep">
+                      {formatBRL(procedureCents)}
+                    </p>
+                    <p className="mt-3 text-[12.5px] leading-relaxed text-espresso-soft/75">
+                      Quita o procedimento por inteiro: no dia do atendimento
+                      você não paga mais nada.
+                    </p>
+                    <div className="mt-4">
+                      <button
+                        type="button"
+                        className="btn btn-gold"
+                        disabled={loading}
+                        onClick={() => startPayment("full")}
+                      >
+                        {paying === "full"
+                          ? "Gerando..."
+                          : "Pagar integral com PIX"}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Só a taxa — PIX */}
+                  <div className="border border-champagne p-5">
+                    <p className="text-[13px] uppercase tracking-[0.2em] text-espresso-soft/75">
+                      Reservar pagando só a taxa
+                    </p>
+                    <p className="mt-2 font-display text-[32px] leading-none text-gold-deep">
+                      {formatBRL(fee)}
+                    </p>
+                    <p className="mt-3 text-[12.5px] leading-relaxed text-espresso-soft/75">
+                      Restante de {formatBRL(remainder)} é pago no studio no dia
+                      do atendimento.
+                    </p>
+                    <div className="mt-4">
+                      <button
+                        type="button"
+                        className="btn btn-outline"
+                        disabled={loading}
+                        onClick={() => startPayment("fee")}
+                      >
+                        {paying === "fee" ? "Gerando..." : "Pagar taxa com PIX"}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <p className="mt-4 text-[12.5px] leading-relaxed text-espresso-soft/75">
+                  Assim que o pagamento for aprovado, o horário é travado na
+                  hora e a vaga fica reservada no nome da cliente.
+                </p>
               </div>
-              <p className="mt-4 text-[12.5px] leading-relaxed text-espresso-soft/75">
-                A taxa de {feePercent}% é o valor pago agora para reservar o
-                horário. O restante ({formatBRL(remainder)}) é pago diretamente
-                no studio no dia do atendimento.
-              </p>
             </div>
           </div>
         ) : null}
@@ -691,20 +757,24 @@ export function BookingFlow({
         {/* 6 — pagamento */}
         {step === 6 && session ? (
           <div>
-            <h2 className="mb-1 text-[30px] leading-tight">Pagamento da taxa</h2>
+            <h2 className="mb-1 text-[30px] leading-tight">
+              {session.scope === "full"
+                ? "Pagamento do procedimento"
+                : "Pagamento da taxa"}
+            </h2>
             <p className="mb-7 text-[14px] text-espresso-soft/75">
               {session.notice}
             </p>
 
-            {/* Pagamento direto: PIX/cartão na conta do studio (Nubank) */}
-            {payment.enabled && (payment.pixEnabled || payment.cardEnabled) ? (
+            {/* Pagamento direto: chave PIX do studio */}
+            {showPixKey ? (
               <div className="mb-7 border border-gold/50 bg-white p-5 sm:p-6">
                 <p className="eyebrow mb-4">
                   Pague direto{payment.bank ? ` · ${payment.bank}` : ""}
                 </p>
 
-                {payment.pixEnabled && payment.pixKey ? (
-                  <div className="border-b border-champagne pb-5">
+                {showPixKey ? (
+                  <div>
                     <div className="flex flex-wrap items-baseline justify-between gap-3">
                       <span className="text-[13px] uppercase tracking-[0.2em] text-espresso-soft/75">
                         Chave PIX{pixDigits.length === 14 ? " (CNPJ)" : ""}
@@ -780,47 +850,6 @@ export function BookingFlow({
                   </div>
                 ) : null}
 
-                {payment.cardEnabled ? (
-                  <div className={payment.pixEnabled && payment.pixKey ? "pt-5" : ""}>
-                    <div className="flex flex-wrap items-baseline justify-between gap-3">
-                      <span className="text-[13px] uppercase tracking-[0.2em] text-espresso-soft/75">
-                        Cartão pelo aplicativo do {payment.bank || "studio"}
-                      </span>
-                      <span className="font-display text-[26px] leading-none text-gold-deep">
-                        {formatBRL(session.amountCents)}
-                      </span>
-                    </div>
-
-                    <p className="mt-3 text-[13px] leading-relaxed text-espresso-soft/80">
-                      {payment.cardTerms ||
-                        "Parcelamento e juros são calculados pelo próprio aplicativo no momento do pagamento."}
-                    </p>
-
-                    <div className="mt-4 flex flex-wrap gap-3">
-                      {payment.cardLink ? (
-                        <a
-                          href={payment.cardLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="btn btn-dark"
-                        >
-                          Pagar com cartão
-                        </a>
-                      ) : null}
-                      {comprovanteLink ? (
-                        <a
-                          href={comprovanteLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="btn btn-gold"
-                        >
-                          Já paguei — enviar comprovante
-                        </a>
-                      ) : null}
-                    </div>
-                  </div>
-                ) : null}
-
                 <p className="mt-5 border-l-2 border-gold/60 pl-4 text-[12.5px] leading-relaxed text-espresso-soft/75">
                   Depois de pagar, envie o comprovante no WhatsApp: a{" "}
                   <strong className="text-espresso">Hadassa</strong>, nossa
@@ -833,13 +862,9 @@ export function BookingFlow({
             <div className="card-premium p-6 sm:p-8">
               <div className="flex flex-wrap items-baseline justify-between gap-3 border-b border-champagne pb-5">
                 <span className="text-[13px] uppercase tracking-[0.2em] text-espresso-soft/75">
-                  {session.method === "pix"
-                    ? session.mode === "sandbox"
-                      ? "PIX · demonstração (Mercado Pago)"
-                      : "PIX pelo Mercado Pago"
-                    : session.mode === "sandbox"
-                      ? "Cartão · demonstração (Mercado Pago)"
-                      : "Cartão pelo Mercado Pago"}
+                  {session.mode === "sandbox"
+                    ? "PIX · demonstração (Mercado Pago)"
+                    : "PIX pelo Mercado Pago"}
                 </span>
                 <span className="font-display text-[32px] leading-none text-gold-deep">
                   {formatBRL(session.amountCents)}
@@ -939,10 +964,22 @@ export function BookingFlow({
               ) : null}
               <Row label="Data" value={formatDateLong(confirmation.date)} />
               <Row label="Horário" value={confirmation.time} />
-              <Row label="Taxa paga" value={formatBRL(confirmation.fee)} accent />
+              <Row
+                label={confirmation.remainder === 0 ? "Valor pago" : "Taxa paga"}
+                value={formatBRL(
+                  confirmation.remainder === 0
+                    ? confirmation.total
+                    : confirmation.fee
+                )}
+                accent
+              />
               <Row
                 label="Restante no studio"
-                value={formatBRL(confirmation.remainder)}
+                value={
+                  confirmation.remainder === 0
+                    ? "Quitado — nada a pagar"
+                    : formatBRL(confirmation.remainder)
+                }
               />
             </div>
 
@@ -1006,16 +1043,7 @@ export function BookingFlow({
               >
                 Continuar →
               </button>
-            ) : (
-              <button
-                type="button"
-                className="btn btn-gold"
-                disabled={loading}
-                onClick={() => startPayment("pix")}
-              >
-                {loading ? "Gerando..." : `Pagar taxa ${formatBRL(fee)}`}
-              </button>
-            )}
+            ) : null}
           </div>
         ) : null}
       </div>

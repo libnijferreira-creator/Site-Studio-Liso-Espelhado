@@ -151,8 +151,8 @@ export interface HairSizesSettings {
 
 /**
  * Dados para pagamento cadastrados no painel (Conteúdo → Pagamento).
- * O studio recebe por PIX e/ou cartão (juros e parcelas calculados
- * pelo próprio aplicativo do Nubank).
+ * O site cobra somente por PIX: ou o valor integral do procedimento,
+ * ou só a taxa de agendamento.
  */
 export interface PaymentSettings {
   /** Mostra a área de pagamento direto na etapa de pagamento. */
@@ -161,11 +161,11 @@ export interface PaymentSettings {
   pixEnabled: boolean;
   /** Chave PIX do studio (pode ser o CNPJ). */
   pixKey: string;
-  /** Aceita pagamento com cartão via aplicativo do Nubank. */
+  /** Legado — cartão saiu do fluxo do site. */
   cardEnabled: boolean;
-  /** Link de pagamento do cartão (opcional — colar quando o studio tiver). */
+  /** Legado — cartão saiu do fluxo do site. */
   cardLink?: string;
-  /** Texto sobre juros/parcelas — vem do aplicativo do Nubank. */
+  /** Legado — cartão saiu do fluxo do site. */
   cardTerms?: string;
   /** Ex.: "Nubank". */
   bank: string;

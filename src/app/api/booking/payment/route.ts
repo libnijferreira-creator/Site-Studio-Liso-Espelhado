@@ -2,10 +2,10 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { getService, getSiteSettings } from "@/lib/queries";
 import {
-  createCardCheckout,
   createPixCharge,
   type Method,
   type PaymentSession,
+  type Scope,
 } from "@/lib/payment";
 import { onlyDigits } from "@/lib/format";
 
@@ -13,7 +13,10 @@ export const runtime = "nodejs";
 
 type Payload = {
   code: string;
-  method: Method;
+  /** Mantido por compatibilidade — o fluxo é somente PIX. */
+  method?: Method;
+  /** `fee` = só a taxa · `full` = valor integral. Os dois via PIX. */
+  scope?: Scope;
   payer?: { name?: string; email?: string; cpf?: string };
 };
 
@@ -30,7 +33,9 @@ export async function POST(request: Request) {
   }
 
   const code = (payload.code || "").trim();
-  const method: Method = payload.method === "card" ? "card" : "pix";
+  const scope: Scope = payload.scope === "full" ? "full" : "fee";
+  // Cartão saiu do fluxo: integral e taxa são pagos somente via PIX.
+  const method: Method = "pix";
 
   if (!code) return bad("Código do agendamento ausente.");
 
@@ -64,7 +69,7 @@ export async function POST(request: Request) {
     return bad("Agendamento cancelado.", 409);
   }
   if (appointment.payment_status === "paid") {
-    return bad("Esta taxa já foi paga.", 409);
+    return bad("Este agendamento já foi pago.", 409);
   }
 
   const service = getService(appointment.service_id);
@@ -81,17 +86,20 @@ export async function POST(request: Request) {
 
   const common = {
     reference: `${appointment.code}`,
-    amountCents: appointment.fee_cents,
-    description: `Taxa de agendamento — ${service?.name ?? "Studio Liso"} (${settings.site.name})`,
+    // Integral cobra o valor todo; a taxa cobra só a fração de reserva.
+    amountCents:
+      scope === "full" ? appointment.total_cents : appointment.fee_cents,
+    description:
+      scope === "full"
+        ? `Procedimento integral — ${service?.name ?? "Studio Liso"} (${settings.site.name})`
+        : `Taxa de agendamento — ${service?.name ?? "Studio Liso"} (${settings.site.name})`,
+    scope,
     payer,
   };
 
   let session: PaymentSession;
   try {
-    session =
-      method === "card"
-        ? await createCardCheckout(common)
-        : await createPixCharge(common);
+    session = await createPixCharge(common);
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Falha ao criar o pagamento.";
@@ -109,9 +117,12 @@ export async function POST(request: Request) {
       id: appointment.id,
       code: appointment.code,
       serviceName: service?.name ?? "",
+      scope,
       total: appointment.total_cents,
       fee: appointment.fee_cents,
-      remainder: appointment.total_cents - appointment.fee_cents,
+      // Pago integral não deixa nada em aberto no dia do atendimento.
+      remainder:
+        scope === "full" ? 0 : appointment.total_cents - appointment.fee_cents,
     },
   });
 }

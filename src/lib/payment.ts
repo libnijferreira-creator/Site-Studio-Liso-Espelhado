@@ -15,9 +15,21 @@ export const isSandbox = () => MP_TOKEN.length === 0;
 
 export type Method = "pix" | "card";
 
+/**
+ * Escopo da cobrança criada na tela de pagamento.
+ *
+ * - `fee`  → só a taxa de agendamento (sempre PIX).
+ * - `full` → valor integral do procedimento (sempre PIX).
+ *
+ * Cartão saiu do fluxo: o link do banco tem valor fixo e não acompanha os
+ * preços dos serviços.
+ */
+export type Scope = "fee" | "full";
+
 export interface PaymentSession {
   mode: "mercadopago" | "sandbox";
   method: Method;
+  scope: Scope;
   amountCents: number;
   /** PIX copia e cola */
   payload?: string;
@@ -56,6 +68,7 @@ export async function createPixCharge(params: {
   reference: string;
   amountCents: number;
   description: string;
+  scope: Scope;
   payer: { name: string; email?: string; cpf?: string };
 }): Promise<PaymentSession> {
   const expiresAt = new Date(Date.now() + 30 * 60 * 1000).toISOString();
@@ -64,6 +77,7 @@ export async function createPixCharge(params: {
     return {
       mode: "sandbox",
       method: "pix",
+      scope: params.scope,
       amountCents: params.amountCents,
       payload: `00020126STUDIO-LISO-ESPPELHADO${params.reference}5204000053039865802BR5924STUDIO LISO ESPELHADO6009ITATIAIA62070503***6304A1B2`,
       externalReference: params.reference,
@@ -88,7 +102,7 @@ export async function createPixCharge(params: {
           : undefined,
       },
     },
-    `pix-${params.reference}`
+    `pix-${params.scope}-${params.reference}`
   );
 
   const tx = payment?.point_of_interaction?.transaction_data;
@@ -96,6 +110,7 @@ export async function createPixCharge(params: {
   return {
     mode: "mercadopago",
     method: "pix",
+    scope: params.scope,
     amountCents: params.amountCents,
     payload: tx?.qr_code,
     qrCodeBase64: tx?.qr_code_base64,
@@ -110,6 +125,7 @@ export async function createCardCheckout(params: {
   reference: string;
   amountCents: number;
   description: string;
+  scope: Scope;
   payer: { name: string; email?: string; cpf?: string };
 }): Promise<PaymentSession> {
   const expiresAt = new Date(Date.now() + 45 * 60 * 1000).toISOString();
@@ -118,6 +134,7 @@ export async function createCardCheckout(params: {
     return {
       mode: "sandbox",
       method: "card",
+      scope: params.scope,
       amountCents: params.amountCents,
       checkoutUrl: "",
       externalReference: params.reference,
@@ -158,12 +175,13 @@ export async function createCardCheckout(params: {
       },
       auto_return: "approved",
     },
-    `card-${params.reference}`
+    `card-${params.scope}-${params.reference}`
   );
 
   return {
     mode: "mercadopago",
     method: "card",
+    scope: params.scope,
     amountCents: params.amountCents,
     checkoutUrl: preference.init_point,
     externalReference: params.reference,

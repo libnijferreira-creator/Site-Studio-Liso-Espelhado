@@ -2,12 +2,18 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { getService, getSiteSettings } from "@/lib/queries";
 import { availableSlots } from "@/lib/availability";
-import { isSandbox } from "@/lib/payment";
+import { isSandbox, type Scope } from "@/lib/payment";
 import { notifyAdmins } from "@/lib/notify";
 
 export const runtime = "nodejs";
 
-type Payload = { code: string; method?: string; transactionId?: string };
+type Payload = {
+  code: string;
+  method?: string;
+  transactionId?: string;
+  /** `full` = a cliente pagou o valor integral (restante zerado). */
+  scope?: Scope;
+};
 
 /**
  * Confirma o pagamento da taxa de agendamento.
@@ -30,8 +36,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Código ausente." }, { status: 400 });
   }
 
-  // Ambiente real: pagamento deve chegar pelo webhook assinado.
-  if (!isSandbox() && !payload.transactionId) {
+  // Ambiente real: a confirmação só pode vir do webhook assinado do Mercado
+  // Pago. Aceitar um transactionId vindo do navegador permitiria travar a vaga
+  // sem que o pagamento exista de fato.
+  if (!isSandbox()) {
     return NextResponse.json(
       { error: "Aguarde a confirmação automática do Mercado Pago." },
       { status: 403 }
@@ -106,14 +114,19 @@ export async function POST(request: Request) {
     );
   }
 
+  // Valor integral quitado não deixa restante em aberto no dia.
+  const remainderCents =
+    payload.scope === "full" ? 0 : appointment.remainder_cents;
+
   db.prepare(
     `UPDATE appointments
         SET payment_status = 'paid',
             status = 'confirmed',
+            remainder_cents = ?,
             transaction_id = COALESCE(?, transaction_id),
             updated_at = datetime('now')
       WHERE id = ?`
-  ).run(payload.transactionId?.trim() || null, appointment.id);
+  ).run(remainderCents, payload.transactionId?.trim() || null, appointment.id);
 
   // Confirmação: avisa os celulares cadastrados no painel.
   try {
@@ -129,7 +142,7 @@ export async function POST(request: Request) {
         time: appointment.time,
         totalCents: appointment.total_cents,
         feeCents: appointment.fee_cents,
-        remainderCents: appointment.remainder_cents,
+        remainderCents,
         hairSize: appointment.hair_size,
         hairSizeCents: appointment.hair_size_cents,
       },
@@ -152,7 +165,7 @@ export async function POST(request: Request) {
     time: appointment.time,
     total: appointment.total_cents,
     fee: appointment.fee_cents,
-    remainder: appointment.remainder_cents,
+    remainder: remainderCents,
     studioPhone: settings.notifications.studioPhone || settings.site.whatsapp,
     whatsappLink: settings.site.whatsappLink,
     studioName: settings.site.name,

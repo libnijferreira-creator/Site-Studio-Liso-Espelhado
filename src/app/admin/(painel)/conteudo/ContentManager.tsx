@@ -774,56 +774,11 @@ export function ContentManager({
                 Aceitar pagamento por <strong>PIX</strong> (mostrar a chave)
               </label>
 
-              <label className="flex items-start gap-3 text-[13.5px] text-espresso-soft/85">
-                <input
-                  type="checkbox"
-                  name="cardEnabled"
-                  defaultChecked={settings.payment.cardEnabled}
-                  className="mt-1 h-4 w-4 accent-[#b8955a]"
-                />
-                Aceitar pagamento com <strong>cartão</strong> pelo aplicativo do
-                Nubank
-              </label>
-
-              <div>
-                <label className="field-label" htmlFor="pay-cardLink">
-                  Link de pagamento do cartão (opcional)
-                </label>
-                <input
-                  id="pay-cardLink"
-                  name="cardLink"
-                  type="url"
-                  className="field"
-                  defaultValue={settings.payment.cardLink || ""}
-                  placeholder="https://..."
-                />
-                <p className="mt-2 text-[12.5px] leading-relaxed text-espresso-soft/75">
-                  Se o studio tiver um link de cobrança (Nubank, Mercado Pago
-                  etc.), cole aqui: o botão “Pagar com cartão” abre esse link.
-                  Sem link, o cliente só vê as instruções abaixo.
-                </p>
-              </div>
-
-              <div>
-                <label className="field-label" htmlFor="pay-cardTerms">
-                  Juros e parcelas do cartão
-                </label>
-                <textarea
-                  id="pay-cardTerms"
-                  name="cardTerms"
-                  rows={2}
-                  className="field resize-y"
-                  defaultValue={
-                    settings.payment.cardTerms ||
-                    "Parcelamento e juros são calculados pelo próprio aplicativo do Nubank no momento do pagamento."
-                  }
-                />
-                <p className="mt-2 text-[12.5px] leading-relaxed text-espresso-soft/75">
-                  O studio não calcula juros: quem define taxa e parcelas é o
-                  aplicativo do Nubank. Escreva aqui o que a cliente deve saber
-                  antes de pagar.
-                </p>
-              </div>
+              <p className="border-l-2 border-gold/60 bg-offwhite px-4 py-3 text-[13px] leading-relaxed text-espresso-soft/75">
+                O site cobra <strong>somente por PIX</strong>: ou a cliente paga
+                o valor integral do procedimento, ou paga só a taxa de
+                agendamento. Pagamento com cartão foi removido do fluxo.
+              </p>
 
               <p className="border-l-2 border-gold/60 bg-offwhite px-4 py-3 text-[13px] leading-relaxed text-espresso-soft/75">
                 Pagou a cliente? Confirme em{" "}
