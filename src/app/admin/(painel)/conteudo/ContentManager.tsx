@@ -575,6 +575,27 @@ export function ContentManager({
           >
             <div className="grid gap-5">
               <div>
+                <label className="field-label" htmlFor="assistantName">
+                  Secretária dos lembretes (nome)
+                </label>
+                <input
+                  id="assistantName"
+                  name="assistantName"
+                  className="field"
+                  defaultValue={
+                    settings.notifications.assistantName || "Hadassa"
+                  }
+                  placeholder="Hadassa"
+                />
+                <p className="mt-2 text-[12.5px] leading-relaxed text-espresso-soft/75">
+                  É quem se apresenta nos lembretes de pagamento enviados pela
+                  aba <strong>Não confirmados</strong> da Agenda — o texto
+                  sempre abre com{" "}
+                  <em>“Oi! Aqui é a Secretária {settings.notifications.assistantName || "Hadassa"}…”</em>.
+                </p>
+              </div>
+
+              <div>
                 <label className="field-label" htmlFor="studioPhones">
                   Celulares do studio (avisos) — um por linha
                 </label>

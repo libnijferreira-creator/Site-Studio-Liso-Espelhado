@@ -5,9 +5,12 @@ import { getDb, getSetting, setSetting } from "@/lib/db";
 import { DEFAULT_SETTINGS } from "@/lib/defaults";
 import { getSiteSettings, type SiteSettings } from "@/lib/queries";
 import { getSession } from "@/lib/session";
-import type { Schedule } from "@/lib/types";
+import type { NotificationsSettings, Schedule } from "@/lib/types";
 
 const DEFAULT_SCHEDULE = DEFAULT_SETTINGS.schedule as Schedule;
+const DEFAULT_NOTIFICATIONS = DEFAULT_SETTINGS.notifications as
+  | NotificationsSettings
+  | undefined;
 
 const WEEKDAY_LABELS = [
   "domingo",
@@ -124,6 +127,11 @@ export async function saveNotificationsAction(formData: FormData) {
     studioPhones: phones.join("\n"),
     clientEmailEnabled: formData.get("clientEmailEnabled") === "on",
     studioEmailEnabled: formData.get("studioEmailEnabled") === "on",
+    // Nome de quem assina os lembretes de pagamento (Secretária Hadassa...).
+    assistantName:
+      text(formData, "assistantName") ||
+      DEFAULT_NOTIFICATIONS?.assistantName ||
+      "Hadassa",
   });
 
   refresh();

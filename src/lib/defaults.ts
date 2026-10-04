@@ -69,6 +69,9 @@ export const DEFAULT_SETTINGS: Record<string, unknown> = {
     studioPhones: "(24) 98153-1771\n(24) 98751-011",
     clientEmailEnabled: true,
     studioEmailEnabled: true,
+    // Quem assina os lembretes de pagamento no Agenda → "Não confirmados".
+    // O texto sempre se apresenta como "Secretária <nome>".
+    assistantName: "Hadassa",
   },
   /**
    * Dados de recebimento do studio — conta Nubank, chave PIX e CNPJ.
@@ -103,7 +106,6 @@ export const DEFAULT_SETTINGS: Record<string, unknown> = {
       { id: "curto", label: "Curto", price_cents: 0 },
       { id: "medio", label: "Médio", price_cents: 2000 },
       { id: "longo", label: "Longo", price_cents: 4000 },
-      { id: "extra-longo", label: "Extra Longo", price_cents: 6000 },
     ],
   },
   /**
@@ -320,6 +322,15 @@ export const DEFAULT_SERVICES = [
     price_cents: 42000,
     duration_min: 210,
     category: "Liso",
+    track: "hair" as const,
+  },
+  {
+    name: "Alisamento + Home Care incluso",
+    description:
+      "Alisamento completo com um kit home care incluso para você prolongar o resultado em casa. Fios lisos, hidratados e com brilho espelhado desde a primeira semana — sem precisar voltar tão cedo.",
+    price_cents: 34000,
+    duration_min: 270,
+    category: "Alisamento",
     track: "hair" as const,
   },
   {

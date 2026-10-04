@@ -41,7 +41,7 @@ export interface SiteSettings {
   };
   seo: { title: string; description: string; keywords: string[] };
   fee: { percent: number; label: string; note: string };
-  notifications: { studioPhone: string; studioPhones?: string | string[]; clientEmailEnabled: boolean; studioEmailEnabled: boolean };
+  notifications: { studioPhone: string; studioPhones?: string | string[]; clientEmailEnabled: boolean; studioEmailEnabled: boolean; assistantName?: string };
   payment: PaymentSettings;
 }
 
@@ -206,7 +206,10 @@ export function busyIntervalsFor(
 export function listAppointments(filter?: {
   from?: string;
   to?: string;
+  /** Um status só. */
   status?: string;
+  /** Vários status de uma vez (ex.: pending + approved = "não confirmados"). */
+  statuses?: string[];
 }): AppointmentWithRelations[] {
   const db = getDb();
   const where: string[] = [];
@@ -223,6 +226,12 @@ export function listAppointments(filter?: {
   if (filter?.status) {
     where.push("a.status = ?");
     params.push(filter.status);
+  }
+  if (filter?.statuses?.length) {
+    where.push(
+      `a.status IN (${filter.statuses.map(() => "?").join(", ")})`
+    );
+    params.push(...filter.statuses);
   }
 
   const sql = `

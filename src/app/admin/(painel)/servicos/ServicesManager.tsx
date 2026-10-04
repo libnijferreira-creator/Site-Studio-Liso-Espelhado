@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import {
+  addHairSizeAction,
   createServiceAction,
   deleteServiceAction,
   saveHairSizesAction,
@@ -314,36 +315,52 @@ export function ServicesManager({
         <form action={saveHairSizesAction} className="mt-6">
           <div className="grid gap-4 sm:grid-cols-2">
             {sizes.options.map((o) => (
-              <div
-                key={o.id}
-                className="grid gap-3 border border-champagne/70 p-4 sm:grid-cols-[1fr_130px]"
-              >
-                <div>
-                  <label className="field-label" htmlFor={`hs-label-${o.id}`}>
-                    Nome do tamanho
-                  </label>
-                  <input
-                    id={`hs-label-${o.id}`}
-                    name={`label_${o.id}`}
-                    className="field"
-                    defaultValue={o.label}
-                    required
-                  />
+              <div key={o.id} className="border border-champagne/70 p-4">
+                <div className="grid gap-3 sm:grid-cols-[1fr_130px]">
+                  <div>
+                    <label className="field-label" htmlFor={`hs-label-${o.id}`}>
+                      Nome do tamanho
+                    </label>
+                    <input
+                      id={`hs-label-${o.id}`}
+                      name={`label_${o.id}`}
+                      className="field"
+                      defaultValue={o.label}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="field-label" htmlFor={`hs-price-${o.id}`}>
+                      Acréscimo (R$)
+                    </label>
+                    <input
+                      id={`hs-price-${o.id}`}
+                      name={`price_${o.id}`}
+                      className="field"
+                      defaultValue={priceToInput(o.price_cents)}
+                      inputMode="decimal"
+                      placeholder="0,00"
+                      required
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="field-label" htmlFor={`hs-price-${o.id}`}>
-                    Acréscimo (R$)
-                  </label>
-                  <input
-                    id={`hs-price-${o.id}`}
-                    name={`price_${o.id}`}
-                    className="field"
-                    defaultValue={priceToInput(o.price_cents)}
-                    inputMode="decimal"
-                    placeholder="0,00"
-                    required
-                  />
-                </div>
+
+                {sizes.options.length > 1 ? (
+                  <button
+                    type="submit"
+                    name="remove"
+                    value={o.id}
+                    className="mt-3 text-[10px] uppercase tracking-[0.16em] text-red-700/70 transition-colors hover:text-red-700"
+                    onClick={(e) => {
+                      const ok = window.confirm(
+                        `Remover o tamanho "${o.label}"? Vale para todos os serviços de cabelo.`
+                      );
+                      if (!ok) e.preventDefault();
+                    }}
+                  >
+                    Remover tamanho
+                  </button>
+                ) : null}
               </div>
             ))}
           </div>
@@ -368,6 +385,47 @@ export function ServicesManager({
               {formatBRL(39000 - feeFor(39000, feePercent))}.
             </p>
           </div>
+        </form>
+
+        {/* ------------------------- adicionar tamanho -------------------- */}
+        <form
+          action={addHairSizeAction}
+          className="mt-5 grid gap-4 border border-dashed border-gold/60 bg-offwhite p-5 sm:grid-cols-[1fr_150px_auto]"
+        >
+          <div>
+            <label className="field-label" htmlFor="new-size-label">
+              Novo tamanho
+            </label>
+            <input
+              id="new-size-label"
+              name="newLabel"
+              className="field"
+              placeholder="Extra Longo"
+              required
+            />
+          </div>
+          <div>
+            <label className="field-label" htmlFor="new-size-price">
+              Acréscimo (R$)
+            </label>
+            <input
+              id="new-size-price"
+              name="newPrice"
+              className="field"
+              inputMode="decimal"
+              placeholder="0,00"
+              defaultValue="0,00"
+            />
+          </div>
+          <div className="flex items-end">
+            <button type="submit" className="btn btn-outline !px-5 !py-3">
+              + Adicionar
+            </button>
+          </div>
+          <p className="text-[12.5px] leading-relaxed text-espresso-soft/75 sm:col-span-3">
+            O tamanho novo passa a valer para <strong>todos</strong> os serviços
+            de cabelo (não para unhas nem sobrancelhas).
+          </p>
         </form>
       </section>
 

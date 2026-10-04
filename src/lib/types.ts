@@ -187,4 +187,9 @@ export interface NotificationsSettings {
   studioPhones?: string | string[];
   clientEmailEnabled: boolean;
   studioEmailEnabled: boolean;
+  /**
+   * Quem se apresenta nos lembretes de pagamento do agenda.
+   * Sempre assina como "Secretária <nome>" (padrão: Hadassa).
+   */
+  assistantName?: string;
 }

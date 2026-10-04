@@ -4,6 +4,7 @@ import "./globals.css";
 import { Header } from "@/components/site/Header";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { MobileCta } from "@/components/site/MobileCta";
+import { LocalBusinessJsonLd } from "@/components/site/LocalBusinessJsonLd";
 import { getSiteSettings } from "@/lib/queries";
 import { siteBaseUrl } from "@/lib/site-url";
 
@@ -93,6 +94,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       data-scroll-behavior="smooth"
     >
       <body className="flex min-h-full flex-col pb-[74px] lg:pb-0">
+        {/* schema.org/BeautySalon — entende o Google que isto é um salão */}
+        <LocalBusinessJsonLd />
         <Header />
         <main className="flex-1">{children}</main>
         <SiteFooter site={site} />

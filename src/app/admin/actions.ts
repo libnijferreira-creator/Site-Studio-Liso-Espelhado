@@ -173,7 +173,16 @@ export async function saveHairSizesAction(formData: FormData) {
   await requireSession();
   const current = normalizeHairSizes(getSetting("hairSizes", null));
 
-  const options = current.options.map((o) => {
+  // O form inteiro é enviado junto com o botão "Remover" de um tamanho —
+  // removemos primeiro e depois gravamos o que sobrou.
+  const removeId = String(formData.get("remove") ?? "");
+  const base = removeId
+    ? current.options.filter((o) => o.id !== removeId)
+    : current.options;
+  // Precisa sobrar pelo menos um: senão some a seleção de todo mundo.
+  if (!base.length) return;
+
+  const options = base.map((o) => {
     const label = String(formData.get(`label_${o.id}`) ?? "").trim();
     const raw = String(formData.get(`price_${o.id}`) ?? "");
     return {
@@ -186,6 +195,29 @@ export async function saveHairSizesAction(formData: FormData) {
   setSetting("hairSizes", {
     enabled: formData.get("enabled") === "on",
     options,
+  });
+  refreshSite();
+}
+
+/** Adiciona um tamanho novo (Curto/Médio/Longo + o que o studio quiser). */
+export async function addHairSizeAction(formData: FormData) {
+  await requireSession();
+  const current = normalizeHairSizes(getSetting("hairSizes", null));
+
+  const label = String(formData.get("newLabel") ?? "").trim();
+  if (!label) return;
+
+  // id estável e único — o agendamento manda o id, nunca o preço.
+  const id = `tam-${Date.now().toString(36)}${Math.random()
+    .toString(36)
+    .slice(2, 5)}`;
+
+  setSetting("hairSizes", {
+    enabled: current.enabled,
+    options: [
+      ...current.options,
+      { id, label, price_cents: parsePrice(formData.get("newPrice")) },
+    ],
   });
   refreshSite();
 }
