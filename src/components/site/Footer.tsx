@@ -25,6 +25,7 @@ export function Footer({
     whatsapp: string;
     whatsappLink: string;
     instagram: string;
+    instagramLink: string;
     address: string;
     hours: string;
     email: string;
@@ -84,7 +85,20 @@ export function Footer({
                 site.whatsapp
               )}
             </li>
-            <li>{site.instagram}</li>
+            <li>
+              {site.instagramLink ? (
+                <a
+                  href={site.instagramLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="transition-colors hover:text-gold-soft"
+                >
+                  {site.instagram}
+                </a>
+              ) : (
+                site.instagram
+              )}
+            </li>
             <li>{site.email}</li>
             <li className="leading-relaxed">{site.address}</li>
             <li className="leading-relaxed text-champagne/60">{site.hours}</li>
