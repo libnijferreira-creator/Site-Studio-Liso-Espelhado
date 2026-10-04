@@ -309,7 +309,7 @@ export const DEFAULT_SERVICES = [
   {
     name: "Liso Espelhado Premium",
     description:
-      "O procedimento assinatura do Studio: alisamento profundo com brilho espelhado, queda controlada e resultado imediato que dura por meses.",
+      "Alisamento profundo com brilho espelhado e kit home care incluso com 37% de desconto. Procedimento assinatura do Studio: resultado imediato, queda controlada e brilho que dura por meses.",
     price_cents: 35000,
     duration_min: 180,
     category: "Liso",
