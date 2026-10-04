@@ -169,12 +169,19 @@ function seed(db: DatabaseSync) {
     (db.prepare(`SELECT COUNT(*) AS n FROM ${table}`).get() as { n: number })
       .n;
 
-  if (count("settings") === 0) {
+  // Insere cada padrão que ainda não existe. Não usamos `count === 0` aqui:
+  // o `migrate()` já roda antes e pode ter gravado `schedule`/`hairSizes`,
+  // o que faria o seed pular TODOS os padrões num banco novo.
+  {
+    const exists = db.prepare(
+      "SELECT COUNT(*) AS n FROM settings WHERE key = ?"
+    );
     const stmt = db.prepare(
       "INSERT INTO settings (key, value) VALUES (?, ?)"
     );
     for (const [key, value] of Object.entries(DEFAULT_SETTINGS)) {
-      stmt.run(key, JSON.stringify(value));
+      const row = exists.get(key) as { n: number };
+      if (row.n === 0) stmt.run(key, JSON.stringify(value));
     }
   }
 

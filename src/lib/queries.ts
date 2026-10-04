@@ -45,19 +45,28 @@ export interface SiteSettings {
   payment: PaymentSettings;
 }
 
+/**
+ * Lê uma seção das configurações fundindo com o padrão da seção.
+ * Assim uma seção ausente/parcial no banco (banco novo, migração pela metade)
+ * nunca devolve `undefined` para campos como `about.specialties`.
+ */
+function section<K extends keyof SiteSettings>(key: K): SiteSettings[K] {
+  const name = key as string;
+  const base = (DEFAULT_SETTINGS[name] ?? {}) as Record<string, unknown>;
+  const stored = getSetting<Record<string, unknown>>(name, {});
+  return { ...base, ...(stored ?? {}) } as SiteSettings[K];
+}
+
 export function getSiteSettings(): SiteSettings {
   return {
-    site: getSetting("site", {} as SiteSettings["site"]),
-    hero: getSetting("hero", {} as SiteSettings["hero"]),
-    about: getSetting("about", {} as SiteSettings["about"]),
-    seo: getSetting("seo", {} as SiteSettings["seo"]),
-    fee: getSetting("fee", {} as SiteSettings["fee"]),
-    notifications: getSetting(
-      "notifications",
-      {} as SiteSettings["notifications"]
-    ),
+    site: section("site"),
+    hero: section("hero"),
+    about: section("about"),
+    seo: section("seo"),
+    fee: section("fee"),
+    notifications: section("notifications"),
     // Pagamento já vem com os dados do studio (CNPJ/chave PIX/Nubank)
-    // mesmo antes de a Beatriz salvar alguma vez no painel.
+    // mesmo antes da Beatriz salvar alguma vez no painel.
     payment: getSetting(
       "payment",
       DEFAULT_SETTINGS.payment as PaymentSettings
