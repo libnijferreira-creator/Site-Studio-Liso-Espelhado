@@ -54,3 +54,5 @@ uploads/
 
 # logs locais
 dev.log
+_srv.log
+*.out

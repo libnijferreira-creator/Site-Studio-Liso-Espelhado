@@ -22,6 +22,20 @@ const sans = Jost({
   display: "swap",
 });
 
+/**
+ * GOOGLE SEARCH CONSOLE — verificação por etiqueta HTML.
+ *
+ * Deixe VAZIO até gerar a tag. Enquanto estiver vazio, NENHUMA etiqueta é
+ * emitida no HTML (não adianta colocar texto placeholder: o Google rejeita).
+ *
+ * Como gerar:
+ *   1. https://search.google.com/search-console → Adicionar propriedade
+ *   2. Prefixo de URL → http://147.15.117.149/
+ *   3. Método "Etiqueta HTML" → copie só o valor de content="..."
+ *   4. Cole entre as asas abaixo e faça o deploy
+ */
+const GOOGLE_SITE_VERIFICATION = "";
+
 export function generateMetadata(): Metadata {
   const { seo, site } = getSiteSettings();
   const title = seo?.title || site?.name || "Studio Liso Espelhado";
@@ -43,6 +57,10 @@ export function generateMetadata(): Metadata {
       description,
     },
     robots: { index: true, follow: true },
+    // só emite <meta name="google-site-verification"> se houver valor real
+    ...(GOOGLE_SITE_VERIFICATION
+      ? { verification: { google: GOOGLE_SITE_VERIFICATION } }
+      : {}),
   };
 }
 

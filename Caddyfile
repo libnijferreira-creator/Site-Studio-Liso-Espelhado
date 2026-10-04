@@ -1,0 +1,20 @@
+# Studio Liso Espelhado — proxy HTTPS (Caddy)
+#
+# O Caddy obtém e renova o certificado Let's Encrypt sozinho, na mão.
+# Não precisa mexer em cron, nem em certbot, nem em arquivo de certificado.
+#
+# IMPORTANTE: o certificado só é emitido depois que o DNS do domínio
+# apontar para 147.15.117.149 (desafio HTTP-01 na porta 80).
+
+# ------------------------------- produção ---------------------------------
+# Domínio principal + www. O Caddy redireciona http -> https sozinho.
+studiolisoespelhado.com.br, www.studiolisoespelhado.com.br {
+	reverse_proxy studio:3000
+}
+
+# ------------------------------ enquanto isso ------------------------------
+# Mantém o site acessível pelo IP enquanto o DNS propaga. `http://` força
+# o Caddy a NÃO tentar certificado neste bloco (IP não recebe certificado).
+http://147.15.117.149 {
+	reverse_proxy studio:3000
+}
