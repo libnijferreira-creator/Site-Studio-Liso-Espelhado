@@ -5,10 +5,10 @@ import { CtaBanner } from "@/components/site/CtaBanner";
 import { getSiteSettings, listServices } from "@/lib/queries";
 
 export function generateMetadata(): Metadata {
+  const feePercent = getSiteSettings().fee.percent;
   return {
     title: "Serviços e procedimentos",
-    description:
-      "Catálogo completo do Studio Liso Espelhado: liso espelhado, botox, progressiva, lifting, blindagem, cronograma capilar, coloração, escovagem, higienização, unhas e design de sobrancelhas — com valor, duração e a taxa de 15% antes de escolher o horário.",
+    description: `Catálogo completo do Studio Liso Espelhado: liso espelhado, botox, progressiva, lifting, blindagem, cronograma capilar, coloração, escovagem, higienização, unhas e design de sobrancelhas — com valor, duração e a taxa de ${feePercent}% antes de escolher o horário.`,
   };
 }
 
@@ -22,7 +22,7 @@ export default function ServicosPage() {
         eyebrow="Catálogo"
         title="Serviços e"
         highlight="procedimentos"
-        description="Transparência total: você vê valor, duração e a taxa de 15% antes de escolher o seu horário."
+        description={`Transparência total: você vê valor, duração e a taxa de ${settings.fee.percent}% antes de escolher o seu horário.`}
       />
       <ServicesSection services={services} feePercent={settings.fee.percent} />
 

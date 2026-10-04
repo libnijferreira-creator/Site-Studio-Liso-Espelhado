@@ -2,7 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { formatBRL, formatDateShort, feeFor } from "@/lib/format";
 import { getDb } from "@/lib/db";
-import { listPromotions, listAppointments, listWorkingHours } from "@/lib/queries";
+import {
+  getSiteSettings,
+  listPromotions,
+  listAppointments,
+  listWorkingHours,
+} from "@/lib/queries";
 import { countUnreadNotifications, listNotifications } from "@/lib/notify";
 
 export const metadata: Metadata = {
@@ -35,6 +40,7 @@ function Stat({
 export default function AdminDashboardPage() {
   const today = new Date().toISOString().slice(0, 10);
   const db = getDb();
+  const feePercent = getSiteSettings().fee.percent;
 
   const todayCount = (
     db
@@ -83,7 +89,11 @@ export default function AdminDashboardPage() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Stat label="Agendamentos hoje" value={String(todayCount)} hint={formatDateShort(today)} />
         <Stat label="Próximos agendamentos" value={String(upcoming.length)} hint="a partir de hoje" />
-        <Stat label="Taxas recebidas" value={formatBRL(fees)} hint="15% confirmados" />
+        <Stat
+          label="Taxas recebidas"
+          value={formatBRL(fees)}
+          hint={`${feePercent}% confirmados`}
+        />
         <Stat label="Cancelamentos" value={String(cancelled)} hint="histórico total" />
         <Stat
           label="Horários ocupados hoje"
@@ -102,7 +112,7 @@ export default function AdminDashboardPage() {
         />
         <Stat
           label="Taxa padrão"
-          value="15%"
+          value={`${feePercent}%`}
           hint="calculada automaticamente"
         />
       </div>
@@ -214,7 +224,8 @@ export default function AdminDashboardPage() {
 
       <p className="mt-6 text-[12px] text-espresso-soft/75">
         Exemplo de cálculo aplicado automaticamente: R$ 400,00 → taxa{" "}
-        {formatBRL(feeFor(40000))}, restante {formatBRL(40000 - feeFor(40000))}.
+        {formatBRL(feeFor(40000, feePercent))}, restante{" "}
+        {formatBRL(40000 - feeFor(40000, feePercent))}.
       </p>
     </div>
   );

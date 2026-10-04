@@ -58,6 +58,8 @@ export const DEFAULT_SETTINGS: Record<string, unknown> = {
   fee: {
     percent: 15,
     label: "Taxa de agendamento",
+    // Texto padrão da explicação da taxa. Se o percentual mudar, edite o
+    // número aqui OU ajuste na aba Taxa do painel (o painel avisa disso).
     note: "A taxa de 15% garante a reserva do seu horário. O valor restante é tratado conforme a política comercial do Studio.",
   },
   notifications: {

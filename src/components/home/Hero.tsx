@@ -1,12 +1,16 @@
 import Link from "next/link";
 import { Media } from "@/components/site/ArtPanel";
+import { PromoAlert, type PromoAlertData } from "./PromoAlert";
 
 export function Hero({
   hero,
   site,
+  promo,
 }: {
   hero: { eyebrow: string; title: string; subtitle: string; image: string | null };
   site: { headline: string; ctaPrimary: string; ctaSecondary: string; whatsapp: string; hours: string };
+  /** null = sem promoção ativa (ou aviso fechado) → nada é renderizado */
+  promo: PromoAlertData | null;
 }) {
   return (
     <section className="relative isolate flex min-h-svh items-end overflow-hidden bg-ink">
@@ -25,6 +29,8 @@ export function Hero({
 
       <div className="container-site relative z-10 pb-16 pt-36 sm:pb-20 lg:pb-24">
         <div className="max-w-3xl animate-[fade-up_.9s_cubic-bezier(.22,1,.36,1)_both]">
+          {promo ? <PromoAlert {...promo} /> : null}
+
           <p className="eyebrow !text-gold-soft">{hero.eyebrow}</p>
 
           <h1 className="mt-6 text-champagne">

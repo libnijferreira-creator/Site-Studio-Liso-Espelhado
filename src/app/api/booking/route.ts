@@ -71,8 +71,11 @@ export async function POST(request: Request) {
   const hairSizeCents = size?.price_cents ?? 0;
 
   const total = service.price_cents + hairSizeCents;
-  const fee = feeFor(total);
-  const remainder = remainderFor(total);
+  // Lido ANTES do cálculo: a taxa é editável no painel (Conteúdo → Taxa) e o
+  // valor cobrado tem que bater com o % que o site exibiu pra cliente.
+  const settings = getSiteSettings();
+  const fee = feeFor(total, settings.fee.percent);
+  const remainder = remainderFor(total, settings.fee.percent);
 
   const client = db
     .prepare("SELECT id FROM clients WHERE whatsapp = ? OR name = ? ORDER BY id LIMIT 1")
@@ -144,8 +147,6 @@ export async function POST(request: Request) {
   } catch {
     /* aviso é opcional — nunca derruba a reserva */
   }
-
-  const settings = getSiteSettings();
 
   return NextResponse.json({
     code,

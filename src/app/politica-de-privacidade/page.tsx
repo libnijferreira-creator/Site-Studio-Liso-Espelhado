@@ -1,4 +1,5 @@
 import { LegalPage, legalMetadata } from "@/components/site/LegalPage";
+import { getSiteSettings } from "@/lib/queries";
 
 export const metadata = legalMetadata(
   "Política de Privacidade — Studio Liso Espelhado",
@@ -6,6 +7,7 @@ export const metadata = legalMetadata(
 );
 
 export default function PrivacidadePage() {
+  const feePercent = getSiteSettings().fee.percent;
   return (
     <LegalPage
       eyebrow="LGPD · Lei 13.709/2018"
@@ -40,7 +42,7 @@ export default function PrivacidadePage() {
           ul: [
             "Confirmar, remarcar ou cancelar o seu agendamento",
             "Enviar lembretes antes do atendimento",
-            "Processar a taxa de reserva de 15% e comprovar o pagamento",
+            `Processar a taxa de reserva de ${feePercent}% e comprovar o pagamento`,
             "Cumprir obrigações legais e fiscais",
             "Melhorar a experiência do site (dados de navegação, de forma agregada)",
           ],

@@ -39,7 +39,7 @@ export function PromotionsSection({
         <div className="mt-14 grid gap-7 md:grid-cols-2">
           {promotions.map((promo, i) => {
             const service = services.find((s) => s.id === promo.service_id);
-            const fee = feeFor(promo.promo_price_cents);
+            const fee = feeFor(promo.promo_price_cents, feePercent);
             return (
               <Reveal key={promo.id} delay={i * 90}>
                 <article className="group relative flex h-full flex-col overflow-hidden border border-white/12 bg-white/[0.04] backdrop-blur-sm transition-colors duration-500 hover:border-gold/50">

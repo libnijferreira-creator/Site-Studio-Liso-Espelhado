@@ -1,4 +1,5 @@
 import { Hero } from "@/components/home/Hero";
+import type { PromoAlertData } from "@/components/home/PromoAlert";
 import { ServicesSection } from "@/components/home/ServicesSection";
 import { PromotionsSection } from "@/components/home/PromotionsSection";
 import { GallerySection } from "@/components/home/GallerySection";
@@ -28,9 +29,30 @@ export default function HomePage() {
   const nails = services.filter((s) => s.track === "nails");
   const showcase = [...hair.slice(0, 3), ...nails.slice(0, 3)];
 
+  // Dados da aba de destaque (ícone de alerta de promoções) no hero.
+  // Desconto = (valor cheio − valor promocional) / valor cheio.
+  const promo: PromoAlertData | null =
+    promotions.length > 0
+      ? {
+          count: promotions.length,
+          maxDiscountPct: Math.max(
+            0,
+            ...promotions.map((p) =>
+              p.original_price_cents > 0
+                ? Math.round(
+                    ((p.original_price_cents - p.promo_price_cents) /
+                      p.original_price_cents) *
+                      100
+                  )
+                : 0
+            )
+          ),
+        }
+      : null;
+
   return (
     <>
-      <Hero hero={settings.hero} site={settings.site} />
+      <Hero hero={settings.hero} site={settings.site} promo={promo} />
       <ServicesSection
         services={showcase}
         feePercent={settings.fee.percent}

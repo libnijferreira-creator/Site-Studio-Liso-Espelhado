@@ -88,6 +88,7 @@ export function BookingFlow({
   hairSizes,
   payment,
   studioWaLink,
+  feePercent,
 }: {
   services: Service[];
   hours: WorkingHours[];
@@ -97,6 +98,8 @@ export function BookingFlow({
   payment: PaymentSettings;
   /** Dígitos do WhatsApp do studio (com DDI) para o comprovante. */
   studioWaLink: string;
+  /** % da taxa de agendamento — Conteúdo → Taxa (nunca fixar aqui). */
+  feePercent: number;
 }) {
   const [step, setStep] = useState(1);
   const [service, setService] = useState<Service | null>(null);
@@ -142,9 +145,8 @@ export function BookingFlow({
   // Valor do procedimento = serviço + acréscimo do tamanho.
   const procedureCents = service ? service.price_cents + sizeCents : 0;
 
-  const feePercent = 15;
-  const fee = service ? feeFor(procedureCents) : 0;
-  const remainder = service ? remainderFor(procedureCents) : 0;
+  const fee = service ? feeFor(procedureCents, feePercent) : 0;
+  const remainder = service ? remainderFor(procedureCents, feePercent) : 0;
 
   const hoursByWeekday = useMemo(() => {
     const map: Record<number, WorkingHours> = {};
@@ -366,7 +368,8 @@ export function BookingFlow({
           <div>
             <h2 className="mb-1 text-[30px] leading-tight">Escolha o serviço</h2>
             <p className="mb-7 text-[14px] text-espresso-soft/75">
-              Selecione o procedimento. A taxa de 15% é calculada automaticamente.
+              Selecione o procedimento. A taxa de {feePercent}% é calculada
+              automaticamente.
             </p>
             <div className="grid gap-4 sm:grid-cols-2">
               {services.map((s) => (
@@ -402,8 +405,8 @@ export function BookingFlow({
                   Tamanho do cabelo
                 </legend>
                 <p className="mb-4 mt-3 text-[14px] text-espresso-soft/75">
-                  O tamanho soma um acréscimo ao valor do serviço e a taxa de
-                  15% passa a ser calculada sobre o total.
+                  O tamanho soma um acréscimo ao valor do serviço e a taxa de{" "}
+                  {feePercent}% passa a ser calculada sobre o total.
                 </p>
                 <div className="grid gap-3 sm:grid-cols-4">
                   {sizeOptions.map((o) => {
@@ -677,9 +680,9 @@ export function BookingFlow({
                 </span>
               </div>
               <p className="mt-4 text-[12.5px] leading-relaxed text-espresso-soft/75">
-                A taxa de 15% é o valor pago agora para reservar o horário. O
-                restante ({formatBRL(remainder)}) é pago diretamente no studio no
-                dia do atendimento.
+                A taxa de {feePercent}% é o valor pago agora para reservar o
+                horário. O restante ({formatBRL(remainder)}) é pago diretamente
+                no studio no dia do atendimento.
               </p>
             </div>
           </div>
@@ -1055,7 +1058,7 @@ export function BookingFlow({
               </div>
             ) : null}
             <div className="flex justify-between gap-3">
-              <span className="text-gold-deep">Taxa 15%</span>
+              <span className="text-gold-deep">Taxa {feePercent}%</span>
               <span className="font-medium text-gold-deep">
                 {service ? formatBRL(fee) : "—"}
               </span>
@@ -1069,7 +1072,7 @@ export function BookingFlow({
           </div>
 
           <p className="mt-5 border-l-2 border-gold/50 pl-4 text-[12px] leading-relaxed text-espresso-soft/75">
-            A taxa de 15% garante a reserva do horário e é cobrada por
+            A taxa de {feePercent}% garante a reserva do horário e é cobrada por
             procedimento. O valor restante é pago no studio.
           </p>
         </div>

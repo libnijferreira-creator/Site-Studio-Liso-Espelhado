@@ -5,15 +5,29 @@ export function formatBRL(cents: number): string {
   });
 }
 
-/** Regra de negócio: taxa de agendamento = 15% do valor do procedimento. */
-export const FEE_RATE = 0.15;
+/**
+ * Percentual padrão da taxa de agendamento.
+ * É só o FALLBACK (banco novo sem a chave "fee") — o valor real vem de
+ * `settings.fee.percent`, que é editável no painel: Conteúdo → Taxa.
+ * ⚠️ Nunca fixe aqui um valor diferente do banco: o site exibiria um % e
+ * cobraria outro.
+ */
+export const DEFAULT_FEE_PERCENT = 15;
 
-export function feeFor(priceCents: number): number {
-  return Math.round(priceCents * FEE_RATE);
+/**
+ * Taxa de agendamento sobre o valor do procedimento.
+ * `percent` vem sempre de `settings.fee.percent` (quem chama é quem tem as
+ * settings); o default existe só para não quebrar chamada sem settings.
+ */
+export function feeFor(priceCents: number, percent: number = DEFAULT_FEE_PERCENT): number {
+  return Math.round((priceCents * percent) / 100);
 }
 
-export function remainderFor(priceCents: number): number {
-  return priceCents - feeFor(priceCents);
+export function remainderFor(
+  priceCents: number,
+  percent: number = DEFAULT_FEE_PERCENT
+): number {
+  return priceCents - feeFor(priceCents, percent);
 }
 
 export function formatDuration(minutes: number): string {

@@ -85,6 +85,12 @@ export function buildMessage(
   a: AppointmentInfo,
   kind: "booking" | "confirmed"
 ): string {
+  // % vem do banco (Conteúdo → Taxa) — nunca fixar o número aqui.
+  const feePercent = getSetting(
+    "fee",
+    DEFAULT_SETTINGS.fee as { percent: number; label: string; note: string }
+  ).percent;
+
   const linhas = [
     header(kind),
     ...identificacao(kind),
@@ -100,7 +106,7 @@ export function buildMessage(
       : []),
     `Data: ${formatDateLong(a.date)} às ${a.time}`,
     `Procedimento: ${formatBRL(a.totalCents)}`,
-    `Taxa 15%: ${formatBRL(a.feeCents)}`,
+    `Taxa ${feePercent}%: ${formatBRL(a.feeCents)}`,
     `Restante no studio: ${formatBRL(a.remainderCents)}`,
     "",
     `Ver na agenda: ${baseUrl()}/admin/agenda?date=${a.date}`,

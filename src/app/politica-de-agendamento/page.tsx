@@ -1,12 +1,19 @@
 import { LegalPage, legalMetadata } from "@/components/site/LegalPage";
 import { getSetting } from "@/lib/db";
 import { DEFAULT_SETTINGS } from "@/lib/defaults";
+import { getSiteSettings } from "@/lib/queries";
+import type { Metadata } from "next";
 import type { Schedule } from "@/lib/types";
 
-export const metadata = legalMetadata(
-  "Política de Agendamento — Studio Liso Espelhado",
-  "Regras de reserva, taxa de 15%, cancelamento, remarcação e pontualidade do Studio Liso Espelhado com Beatriz Ribeiro."
-);
+// Metadata dinâmica: o % da taxa vem do banco (Conteúdo → Taxa). Se ficasse
+// em `export const metadata`, o número do texto de busca seria fixo.
+export function generateMetadata(): Metadata {
+  const feePercent = getSiteSettings().fee.percent;
+  return legalMetadata(
+    "Política de Agendamento — Studio Liso Espelhado",
+    `Regras de reserva, taxa de ${feePercent}%, cancelamento, remarcação e pontualidade do Studio Liso Espelhado com Beatriz Ribeiro.`
+  );
+}
 
 const WEEKDAYS = [
   "domingo",
@@ -24,13 +31,14 @@ export default function PoliticaAgendamentoPage() {
     DEFAULT_SETTINGS.schedule as Schedule
   );
   const dia = schedule.nailWeekdayLabel || WEEKDAYS[schedule.nailWeekday];
+  const feePercent = getSiteSettings().fee.percent;
 
   return (
     <LegalPage
       eyebrow="Reservas e pagamentos"
       title="Política de"
       highlight="Agendamento"
-      description="Tudo o que você precisa saber sobre a reserva online, a taxa de 15% e as regras de remarcação."
+      description={`Tudo o que você precisa saber sobre a reserva online, a taxa de ${feePercent}% e as regras de remarcação.`}
       updated="30 de setembro de 2026"
       sections={[
         {
@@ -41,9 +49,12 @@ export default function PoliticaAgendamentoPage() {
           ],
         },
         {
-          h: "Taxa de agendamento de 15%",
+          h: `Taxa de agendamento de ${feePercent}%`,
           table: [
-            { k: "Como é calculada", v: "15% sobre o valor do procedimento, automaticamente." },
+            {
+              k: "Como é calculada",
+              v: `${feePercent}% sobre o valor do procedimento, automaticamente.`,
+            },
             { k: "Quando é paga", v: "No ato da reserva, por PIX ou cartão, antes da confirmação." },
             { k: "O que garante", v: "A reserva exclusiva do horário e a vaga na agenda." },
             { k: "O restante", v: "Pago diretamente no Studio, no dia do atendimento." },
@@ -64,7 +75,7 @@ export default function PoliticaAgendamentoPage() {
           h: "Cancelamento e remarcação",
           ul: [
             "Com mais de 24 horas de antecedência: remarcação gratuita ou devolução integral da taxa.",
-            "Com menos de 24 horas: a taxa de 15% não é devolvida, por se tratar de horário já bloqueado.",
+            `Com menos de 24 horas: a taxa de ${feePercent}% não é devolvida, por se tratar de horário já bloqueado.`,
             "Não comparecimento (falta): a taxa não é devolvida e novas reservas poderão exigir pagamento antecipado integral.",
             "Cancelamento pelo Studio (imprevisto, doença ou falta de produto): devolução integral da taxa ou remarcação sem custo, à escolha da cliente.",
           ],

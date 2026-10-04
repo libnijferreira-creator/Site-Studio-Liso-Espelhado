@@ -2,10 +2,12 @@
 
 import { useRef, useState } from "react";
 import type { SiteSettings } from "@/lib/queries";
+import { feeFor, formatBRL } from "@/lib/format";
 import type { Schedule, WorkingHours } from "@/lib/types";
 import {
   saveAboutAction,
   saveContactAction,
+  saveFeeAction,
   saveHeroAction,
   saveHoursAction,
   saveNotificationsAction,
@@ -19,6 +21,7 @@ type Tab =
   | "sobre"
   | "seo"
   | "horarios"
+  | "taxa"
   | "notificacoes"
   | "pagamento";
 
@@ -28,6 +31,7 @@ const TABS: { id: Tab; label: string }[] = [
   { id: "sobre", label: "Sobre" },
   { id: "seo", label: "SEO" },
   { id: "horarios", label: "Horários" },
+  { id: "taxa", label: "Taxa" },
   { id: "notificacoes", label: "Avisos" },
   { id: "pagamento", label: "Pagamento" },
 ];
@@ -103,6 +107,95 @@ function ImageField({
         <img src={current} alt="Prévia" className="mt-3 h-28 w-44 border border-champagne object-cover" />
       ) : null}
     </div>
+  );
+}
+
+/**
+ * Aba "Taxa" — percentual da taxa de agendamento.
+ * Componente separado porque o preview precisa de estado local (o form em si
+ * é controlado pela ação do servidor).
+ */
+function FeeForm({ fee }: { fee: SiteSettings["fee"] }) {
+  const [percent, setPercent] = useState(String(fee.percent));
+  const numeric = Number.parseFloat(percent.replace(",", ".")) || 0;
+  // R$ 390,00 = serviço de R$ 350,00 + acréscimo de R$ 40,00 (Longo)
+  const exampleCents = 39000;
+
+  return (
+    <form action={saveFeeAction}>
+      <Card
+        title="Taxa de agendamento"
+        hint="Percentual cobrado para reservar o horário. Sai daqui e vale para a home, Serviços, Promoções, o agendamento, os avisos e os e-mails."
+      >
+        <div className="grid gap-5">
+          <div className="grid gap-5 sm:grid-cols-2">
+            <div>
+              <label className="field-label" htmlFor="fee-percent">
+                Percentual (%)
+              </label>
+              <input
+                id="fee-percent"
+                name="percent"
+                className="field"
+                value={percent}
+                onChange={(e) => setPercent(e.target.value)}
+                inputMode="decimal"
+                required
+              />
+              <p className="mt-2 text-[12.5px] leading-relaxed text-espresso-soft/75">
+                Aceita vírgula ou ponto (ex.: 15 ou 12,5). De 0 a 100.
+              </p>
+            </div>
+
+            <div>
+              <label className="field-label" htmlFor="fee-label">
+                Rótulo
+              </label>
+              <input
+                id="fee-label"
+                name="label"
+                className="field"
+                defaultValue={fee.label}
+                placeholder="Taxa de agendamento"
+              />
+              <p className="mt-2 text-[12.5px] leading-relaxed text-espresso-soft/75">
+                O nome da linha no resumo do agendamento.
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <label className="field-label" htmlFor="fee-note">
+              Texto explicativo
+            </label>
+            <textarea
+              id="fee-note"
+              name="note"
+              rows={3}
+              className="field resize-y"
+              defaultValue={fee.note}
+            />
+            <p className="mt-2 text-[12.5px] leading-relaxed text-espresso-soft/75">
+              É o que a cliente lê na etapa de pagamento. Se mudar o
+              percentual, atualize também o número escrito neste texto.
+            </p>
+          </div>
+
+          <p className="border-l-2 border-gold/60 bg-offwhite px-4 py-3 text-[13px] leading-relaxed text-espresso-soft/75">
+            Prévia com o valor digitado: serviço de{" "}
+            {formatBRL(exampleCents)} + tamanho Longo → taxa de{" "}
+            <strong>{numeric || 0}%</strong> ={" "}
+            <strong className="text-gold-deep">
+              {formatBRL(feeFor(exampleCents, numeric))}
+            </strong>{" "}
+            · restante {formatBRL(exampleCents - feeFor(exampleCents, numeric))}.
+          </p>
+        </div>
+      </Card>
+      <button type="submit" className="btn btn-gold">
+        Salvar taxa
+      </button>
+    </form>
   );
 }
 
@@ -470,6 +563,9 @@ export function ContentManager({
         </form>
       ) : null}
 
+      {/* ------------------------------ taxa ----------------------------- */}
+      {tab === "taxa" ? <FeeForm fee={settings.fee} /> : null}
+
       {/* --------------------------- notificações ------------------------ */}
       {tab === "notificacoes" ? (
         <form action={saveNotificationsAction}>
@@ -528,7 +624,8 @@ export function ContentManager({
               <p className="border-l-2 border-gold/60 bg-offwhite px-4 py-3 text-[13px] leading-relaxed text-espresso-soft/75">
                 As confirmações de pagamento são recebidas automaticamente pelo
                 Mercado Pago. Cada aviso já sai com o código, a cliente, a data,
-                a taxa de 15% e o restante a cobrar no studio.
+                a taxa de {settings.fee.percent}% e o restante a cobrar no
+                studio.
               </p>
             </div>
           </Card>

@@ -76,7 +76,8 @@ export function ServicesSection({
                       {formatBRL(service.price_cents)}
                     </p>
                     <p className="mt-1.5 text-[11px] text-gold-deep">
-                      Taxa {feePercent}% = {formatBRL(feeFor(service.price_cents))}
+                      Taxa {feePercent}% ={" "}
+                      {formatBRL(feeFor(service.price_cents, feePercent))}
                     </p>
                   </div>
                 </div>

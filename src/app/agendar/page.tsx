@@ -6,7 +6,7 @@ import { getSetting } from "@/lib/db";
 import { DEFAULT_SETTINGS } from "@/lib/defaults";
 import { normalizeHairSizes } from "@/lib/hairsize";
 import type { Schedule } from "@/lib/types";
-import { formatBRL } from "@/lib/format";
+import { feeFor, formatBRL } from "@/lib/format";
 import { BookingFlow } from "./BookingFlow";
 
 export const revalidate = 0;
@@ -58,7 +58,7 @@ export default function AgendarPage() {
         eyebrow="Reserva online"
         title="Agende seu"
         highlight="horário"
-        description="Escolha o serviço, a data e o horário em poucos passos. A taxa de agendamento de 15% é calculada automaticamente e garante a reserva do seu horário."
+        description={`Escolha o serviço, a data e o horário em poucos passos. A taxa de agendamento de ${settings.fee.percent}% é calculada automaticamente e garante a reserva do seu horário.`}
       />
 
       <section className="py-14 sm:py-20">
@@ -71,6 +71,7 @@ export default function AgendarPage() {
               hairSizes={hairSizes}
               payment={settings.payment}
               studioWaLink={waDigitos}
+              feePercent={settings.fee.percent}
             />
           </Suspense>
         </div>
@@ -126,10 +127,11 @@ export default function AgendarPage() {
             />
             <Info
               passo="02"
-              titulo="Pague a taxa de 15%"
+              titulo={`Pague a taxa de ${settings.fee.percent}%`}
               texto={`${meioPagamento} Equivale a ${formatBRL(
-                Math.round(
-                  Math.min(...services.map((s) => s.price_cents)) * 0.15
+                feeFor(
+                  Math.min(...services.map((s) => s.price_cents)),
+                  settings.fee.percent
                 )
               )} a partir do menor serviço.`}
             />

@@ -109,18 +109,29 @@ export function Footer({
           <p>
             © {year} {site.name}. Todos os direitos reservados.
           </p>
-          <ul className="flex flex-wrap gap-x-6 gap-y-2">
-            {LEGAL.map((item) => (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className="transition-colors hover:text-gold-soft"
-                >
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
+
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+            <ul className="flex flex-wrap gap-x-6 gap-y-2">
+              {LEGAL.map((item) => (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className="transition-colors hover:text-gold-soft"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+
+            {/* Acesso do dono do site ao painel — leva ao login. */}
+            <Link
+              href="/admin/login"
+              className="border-l border-white/15 pl-6 uppercase tracking-[0.18em] text-champagne/45 transition-colors hover:text-gold-soft"
+            >
+              Painel
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

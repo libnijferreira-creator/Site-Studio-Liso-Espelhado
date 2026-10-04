@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   createServiceAction,
   deleteServiceAction,
@@ -17,11 +17,91 @@ function priceToInput(cents: number): string {
 
 type Draft = Partial<Service> & { isNew?: boolean };
 
+/**
+ * Campo de foto com envio de arquivo — mesmos padrões de
+ * Conteúdo/Depoimentos/Promoções. O valor vai no input hidden (para o
+ * Server Action pegar); o visível serve só para digitar/preview.
+ */
+function ImageField({ id, value }: { id: string; value: string }) {
+  const [current, setCurrent] = useState(value);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
+
+  async function upload(file: File) {
+    setUploading(true);
+    setErro(null);
+    try {
+      const body = new FormData();
+      body.append("file", file);
+      const res = await fetch("/api/admin/upload", { method: "POST", body });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.url) setCurrent(data.url);
+      else setErro(data.error || "Não foi possível enviar a foto.");
+    } catch {
+      setErro("Falha no envio. Verifique a conexão.");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  return (
+    <div>
+      <label className="field-label" htmlFor={id}>
+        Foto do procedimento
+      </label>
+      <input type="hidden" name="image" value={current} />
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/avif,image/gif"
+        className="hidden"
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) void upload(f);
+          e.target.value = "";
+        }}
+      />
+      <div className="flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          className="btn btn-outline !px-5 !py-2.5 !text-[10px]"
+          onClick={() => fileRef.current?.click()}
+          disabled={uploading}
+        >
+          {uploading ? "Enviando..." : "Enviar foto"}
+        </button>
+        <input
+          id={id}
+          className="field flex-1 !py-2.5 !text-[13px]"
+          value={current}
+          onChange={(e) => setCurrent(e.target.value)}
+          placeholder="/uploads/servico.jpg ou https://..."
+        />
+      </div>
+      {erro ? (
+        <p className="mt-2 text-[12px] text-red-700">{erro}</p>
+      ) : null}
+      {current ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={current}
+          alt="Prévia da foto"
+          className="mt-3 h-28 w-44 border border-champagne object-cover"
+        />
+      ) : null}
+    </div>
+  );
+}
+
 function ServiceForm({
   draft,
+  feePercent,
   onCancel,
 }: {
   draft: Draft;
+  /** % da taxa — Conteúdo → Taxa (nunca fixar). */
+  feePercent: number;
   onCancel: () => void;
 }) {
   const action = draft.isNew ? createServiceAction : updateServiceAction;
@@ -67,8 +147,9 @@ function ServiceForm({
             required
           />
           <p className="mt-2 text-[12px] text-gold-deep">
-            Taxa de 15% = {formatBRL(feeFor(previewCents))} · restante{" "}
-            {formatBRL(previewCents - feeFor(previewCents))}
+            Taxa de {feePercent}% ={" "}
+            {formatBRL(feeFor(previewCents, feePercent))} · restante{" "}
+            {formatBRL(previewCents - feeFor(previewCents, feePercent))}
           </p>
         </div>
 
@@ -138,15 +219,9 @@ function ServiceForm({
         </div>
 
         <div className="sm:col-span-2">
-          <label className="field-label" htmlFor={`image-${draft.id ?? "new"}`}>
-            Imagem (URL ou caminho)
-          </label>
-          <input
+          <ImageField
             id={`image-${draft.id ?? "new"}`}
-            name="image"
-            className="field"
-            defaultValue={draft.image ?? ""}
-            placeholder="/uploads/servico.jpg"
+            value={draft.image ?? ""}
           />
         </div>
 
@@ -180,9 +255,12 @@ function ServiceForm({
 export function ServicesManager({
   services,
   sizes,
+  feePercent,
 }: {
   services: Service[];
   sizes: HairSizesSettings;
+  /** % da taxa de agendamento — lido das settings, não é constante. */
+  feePercent: number;
 }) {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [creating, setCreating] = useState(false);
@@ -196,8 +274,8 @@ export function ServicesManager({
           <div className="rule-gold mt-5 w-32" />
           <p className="mt-4 max-w-xl text-[14px] text-espresso-soft/80">
             Valores, durações e descrições são editáveis e aparecem imediatamente
-            no site. A taxa de 15% é calculada automaticamente — não é preciso
-            cadastrá-la.
+            no site. A taxa de {feePercent}% é calculada automaticamente — não é
+            preciso cadastrá-la.
           </p>
         </div>
 
@@ -217,6 +295,7 @@ export function ServicesManager({
         <div className="mb-8">
           <ServiceForm
             draft={{ isNew: true, status: "active", duration_min: 60, price_cents: 0, track: "hair" }}
+            feePercent={feePercent}
             onCancel={() => setCreating(false)}
           />
         </div>
@@ -228,8 +307,8 @@ export function ServicesManager({
         <p className="mt-3 max-w-2xl text-[13.5px] leading-relaxed text-espresso-soft/75">
           A seleção aparece na etapa 1 do agendamento dos serviços de cabelo
           (não aparece para sobrancelhas nem para unhas). O valor de cada
-          tamanho é um acréscimo somado ao serviço — e a taxa de 15% passa a ser
-          calculada sobre o total.
+          tamanho é um acréscimo somado ao serviço — e a taxa de {feePercent}%
+          passa a ser calculada sobre o total.
         </p>
 
         <form action={saveHairSizesAction} className="mt-6">
@@ -284,8 +363,9 @@ export function ServicesManager({
               Salvar tamanhos
             </button>
             <p className="text-[12.5px] text-espresso-soft/75">
-              Ex.: Longo + R$ 40,00 num serviço de R$ 350,00 → taxa de 15% = R$
-              58,50 · restante R$ 331,50.
+              Ex.: Longo + R$ 40,00 num serviço de R$ 350,00 → taxa de{" "}
+              {feePercent}% = {formatBRL(feeFor(39000, feePercent))} · restante{" "}
+              {formatBRL(39000 - feeFor(39000, feePercent))}.
             </p>
           </div>
         </form>
@@ -299,6 +379,7 @@ export function ServicesManager({
               {isEditing ? (
                 <ServiceForm
                   draft={service}
+                  feePercent={feePercent}
                   onCancel={() => setEditingId(null)}
                 />
               ) : (
@@ -340,7 +421,8 @@ export function ServicesManager({
                       {formatBRL(service.price_cents)}
                     </p>
                     <p className="mt-1.5 text-[12px] text-gold-deep">
-                      taxa 15% = {formatBRL(feeFor(service.price_cents))}
+                      taxa {feePercent}% ={" "}
+                      {formatBRL(feeFor(service.price_cents, feePercent))}
                     </p>
                   </div>
 

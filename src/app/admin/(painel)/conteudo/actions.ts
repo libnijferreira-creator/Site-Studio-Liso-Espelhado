@@ -199,3 +199,31 @@ export async function saveHoursAction(formData: FormData) {
 
   refresh();
 }
+
+/**
+ * Taxa de agendamento (%).
+ * É o ÚNICO lugar de onde sai o número: alimenta o cálculo (feeFor), a
+ * exibição na home/serviços/promoções, o agendamento e os avisos.
+ * Aceita vírgula ("12,5") ou ponto ("12.5"); fora de 0–100 mantém o valor
+ * salvo (não grava lixo).
+ */
+export async function saveFeeAction(formData: FormData) {
+  const session = await getSession();
+  if (!session) return;
+
+  const current = getSiteSettings();
+  const parsed = Number.parseFloat(text(formData, "percent").replace(",", "."));
+  const percent =
+    Number.isFinite(parsed) && parsed >= 0 && parsed <= 100
+      ? Math.round(parsed * 100) / 100
+      : current.fee.percent;
+
+  setSetting("fee", {
+    ...current.fee,
+    percent,
+    label: text(formData, "label") || current.fee.label,
+    note: text(formData, "note"),
+  });
+
+  refresh();
+}

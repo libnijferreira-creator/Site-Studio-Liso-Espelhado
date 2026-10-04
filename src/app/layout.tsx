@@ -61,6 +61,15 @@ export function generateMetadata(): Metadata {
       url: "./",
     },
     robots: { index: true, follow: true },
+    // iPhone: "Adicionar à Tela de Início" abre em tela cheia (sem Safari).
+    appleWebApp: {
+      title: "Studio Liso",
+      statusBarStyle: "black-translucent",
+      // fundo do splash igual ao tema do site e ao ícone
+      startupImage: [
+        { url: "/icon-512x512.png", media: "(orientation: portrait)" },
+      ],
+    },
     // só emite <meta name="google-site-verification"> se houver valor real
     ...(GOOGLE_SITE_VERIFICATION
       ? { verification: { google: GOOGLE_SITE_VERIFICATION } }
