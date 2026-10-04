@@ -1,171 +1,80 @@
-# ⚙️ Onde paramos — retomada
+# ✅ Projeto concluído — 04/10/2026
 
 > **ARQUIVO INTERNO.** Apagar este arquivo antes de entregar/vender o site.
 > Não contém senhas nem dados pessoais.
 
-Atualizado em: **04/10/2026** (manhã)
+**Status: site no ar, HTTPS, indexado e aparecendo no Google.**
 
 ---
 
-## ✅ Pronto (não refazer)
+## ✅ Tudo concluído
 
 | # | Item | Evidência |
 |---|---|---|
-| 1 | Instância na nuvem no ar | `VM.Standard.E2.1.Micro`, Ubuntu 22.04, 1 GB + swap 4 GB |
-| 2 | Portas **22 / 80 / 443** abertas | regras `0.0.0.0/0` na security list |
-| 3 | **Registros A publicados** | raiz **e** `www` → `147.15.117.149` (DoH do Google) |
-| 4 | **Site no ar pelo domínio** | `https://…` → HTTP **200** (130 KB) |
-| 5 | **HTTPS com certificado** | Caddy + Let's Encrypt, porta 443 |
+| 1 | Domínio registrado | `studiolisoespelhado.com.br` · expira 03/10/2027 |
+| 2 | DNS publicado | raiz e `www` → `147.15.117.149` |
+| 3 | Portas 80, 443 e 22 abertas | testadas de fora |
+| 4 | Site no ar | `https://studiolisoespelhado.com.br/` → **200** |
+| 5 | **HTTPS** | Caddy + Let's Encrypt (`CN=studiolisoespelhado.com.br`) |
 | 6 | `http://` → `https://` | redirect **308** automático |
-| 7 | `www` funcionando | `https://www.…` → 200 |
-| 8 | Sitemap 100% https | 11/11 URLs → 200, todas `https://` |
-| 9 | Robots | `Sitemap: https://…/sitemap.xml` |
-| 10 | Zero `localhost` e zero IP no HTML | `grep` = 0 |
-| 11 | Admin com `noindex` | todas as rotas `/admin/*` |
-| 12 | Código no GitHub | último commit `c110c5e` |
-| 13 | **Canonical por página** | cada rota emite o **próprio** (`./` resolvido no render) |
-| 14 | **`og:url` por página** | igual ao canonical, em todas as rotas |
-| 15 | Certificado Let's Encrypt | `CN=studiolisoespelhado.com.br`, **04/10/2026 → 02/01/2027**, renova sozinho |
-| 16 | Redirect `http` → `https` | **308** em apex **e** www |
+| 7 | `www` funciona | **200** (canonical aponta pra raiz) |
+| 8 | Caddy no servidor | container `caddy` (80/443) · `studio` só em `127.0.0.1:3000` |
+| 9 | `SITE_URL` | `https://studiolisoespelhado.com.br` nos 2 lugares |
+| 10 | sitemap.xml | **11 URLs**, todas **200** |
+| 11 | robots.txt | `Allow: /` · `Disallow: /admin`, `/api` · sitemap correto |
+| 12 | canonical | `<link rel="canonical" href="https://studiolisoespelhado.com.br">` |
+| 13 | `index, follow` | presente em todas as páginas |
+| 14 | Zero `localhost` no HTML | verificado |
+| 15 | **Etiqueta do Google** | `<meta name="google-site-verification">` presente |
+| 16 | **Search Console** | propriedade verificada |
+| 17 | **Sitemap enviado** | Status **Processado** · **11 páginas encontradas** |
+| 18 | **Inspeção de URL** | *"O URL está no Google"* · *"A página está indexada"* · *"A página é exibida por HTTPS"* |
+| 19 | **SERP** | a meta description já aparece em *"Resultados da web"* |
+| 20 | Sem links quebrados | `/admin` é bloqueado de propósito |
+
+Repo: branch `main` · último commit `38d648d`
 
 ---
 
-## ⏳ Pendente
+## 🔎 Por que demorou o DNS
 
-### 1. Search Console ⭐ **prioridade**
-1. **Adicionar propriedade** → Prefixo de URL → `https://studiolisoespelhado.com.br/`
-2. Método **Etiqueta HTML** → copiar só o valor de `content="..."`
-3. Colar em `GOOGLE_SITE_VERIFICATION` em `src/app/layout.tsx`
-4. `git push` → no servidor: `bash /home/ubuntu/d3.sh`
-5. Concluir verificação → **Enviar sitemap** `https://…/sitemap.xml`
-6. **Solicitar indexação** da home
-
-> O campo já está preparado e **vazio** (o Google rejeita placeholder).
-> O comentário no `layout.tsx` já aponta para o domínio, não mais para o IP.
-
-### 2. `og:title` igual em todas as páginas ⚠️ *(qualidade de compartilhamento)*
-> ✅ **`og:url` e `canonical` já estão certos** (deploy `c110c5e`) — só falta
-> o **título** da prévia.
-
-Hoje, quem manda o link de `/servicos` ou `/promocoes` no WhatsApp vê o
-**título da home** na prévia. Causa: `generateMetadata` do root define o
-`openGraph` inteiro, e as páginas filhas só sobrescrevem `title`/`description`.
-
-- Como funciona o merge (lido na fonte): `mergeMetadata` **substitui** o objeto
-  `openGraph` inteiro quando o segmento filho define um — não faz merge por chave.
-- Correção: criar `src/lib/seo.ts` com um helper que devolva `title`,
-  `description`, `openGraph` completo (`type`, `locale`, `siteName`, `url: "./"`)
-  e `alternates: { canonical: "./" }`, e usá-lo nas 6 páginas com
-  `generateMetadata` (`servicos`, `contato`, `sobre`, `resultados`,
-  `promocoes`, `mostruario`).
-- `og:image` também está ausente — seria bom ter uma imagem social 1200×630.
-
-### 3. Limpeza de dados pessoais antes de vender ⚠️
-
-O raio-x do HTML publicado achou: **2 números de WhatsApp**, **1 e-mail**,
-**endereço físico**, **CNPJ (também é a chave PIX)** e **nome de pessoa**
-no `<title>`/`<meta description>`. Nenhum CPF. Não encontrei dados de
-clientes no HTML público além dos depoimentos.
-
-Mapa por **onde** cada coisa vive:
-
-#### 3a. No banco → trocar pelo painel `/admin` (sem deploy)
-
-| Onde no admin | O que sai |
-|---|---|
-| **Conteúdo → Identidade** | assinatura, subtítulo do hero |
-| **Conteúdo → Sobre** | título/estória (nome da profissional, texto em 1ª pessoa) |
-| **Conteúdo → SEO** | `<title>`, `<meta description>`, **keywords** |
-| **Conteúdo → Contato** | WhatsApp, link do WhatsApp, Instagram, e-mail, **endereço**, Google Maps |
-| **Conteúdo → Avisos** | celulares que recebem notificação de agendamento/pagamento |
-| **Conteúdo → Pagamento** | **CNPJ**, chave PIX, banco |
-| **Depoimentos** | nomes de clientes + texto (o de exemplo cita a profissional) |
-
-> ⚠️ **CNPJ = chave PIX.** Trocar só o PIX não basta: o `payment.cnpj`
-> também aparece no rodapé/página de contato.
-
-#### 3b. No código → exige commit + deploy
-
-| Arquivo | O que tem |
-|---|---|
-| `src/app/politica-de-agendamento/page.tsx:107` | telefone **+ endereço físico** |
-| `src/app/politica-de-privacidade/page.tsx:93` | telefone + e-mail (seção LGPD) |
-| `src/app/termos-de-uso/page.tsx:80` | telefone + e-mail |
-| `src/components/site/HadassaForm.tsx:98` | placeholder de telefone |
-| `src/app/agendar/BookingFlow.tsx:601` | placeholder de telefone |
-| `src/lib/defaults.ts` | **todo o seed** (`site.*`, `seo.*`, `about.*`, `hero.*`, `payment.*`, `notifications.*`, `DEFAULT_TESTIMONIALS`) |
-
-> 📌 **Detalhe que engana:** o `defaults.ts` só roda **na primeira criação do
-> banco**. Trocar ele **não muda o site que está no ar** — muda a instalação
-> **futura do comprador**. Ou seja: são **duas** limpezas diferentes, e as
-> duas precisam acontecer.
->
-> - Site no ar → painel `/admin`
-> - Repositório entregue → `defaults.ts` + as 3 páginas de política
-
-#### 3c. Depois de trocar, conferir de fora
-
-```bash
-curl -s https://studiolisoespelhado.com.br/ | grep -icE 'wa\.me|@gmail|cnpj'
-curl -s https://studiolisoespelhado.com.br/politica-de-agendamento | grep -i 'rua\|avenida'
-exiftool -r -all= public/uploads/     # tirar GPS das fotos
-```
-
+O registrador bloqueia alterações de DNS em domínio **recém-registrado**
+por ~1 hora (*"servidores DNS em transição"*). Passado o prazo,
+a zona publicou sozinha. Nada precisou ser refeito.
 
 ---
 
-## 🔁 Como dar deploy sem perder o build
+## 📈 O que falta agora (opcional / aceleração)
 
-⚠️ **Aula de 04/10:** `ssh "bash script.sh"` com build longo → o SSH caiu em
-15 min e o comando **continuou rodando** no servidor (deu certo por sorte).
-Desta vez o deploy foi para `docker compose build && up -d` junto, e funcionou.
+Não há pendências técnicas. Para ranquear mais rápido:
 
-Forma segura (não depende da conexão ficar viva):
+- [ ] Link do site na **bio do Instagram** `@studio_liso_espelhado`
+- [ ] Criar **Google Meu Negócio** (perfil local — Itatiaia/RJ)
+- [ ] Cadastrar em diretórios locais de salões
+- [ ] Publicar o endereço no WhatsApp Status
+- [ ] Pedir a clientes que deixem avaliações
 
-```bash
-# 1) subir o script
-scp -i <CHAVE> deploy3.sh ubuntu@<IP>:/home/ubuntu/
-
-# 2) rodar desanexado (sobrevive ao SSH cair)
-ssh -i <CHAVE> ubuntu@<IP> \
-  "setsid nohup bash /home/ubuntu/d3.sh > /home/ubuntu/d3.log 2>&1 < /dev/null &"
-
-# 3) acompanhar
-ssh -i <CHAVE> ubuntu@<IP> "tail -f /home/ubuntu/d3.log"   # Ctrl+C só sai do tail
-```
-
-O `d3.sh` já faz: `git pull` → `sed` da senha → `docker compose build` →
-`up -d` → `ps` → logs do Caddy.
-
-**Estados que o servidor pode ter (útil pra depurar):**
-
-```bash
-sudo docker compose ps
-sudo docker compose logs --tail=40 caddy
-curl -I https://studiolisoespelhado.com.br/     # deve ser 200
-curl -I http://studiolisoespelhado.com.br/      # deve ser 308 -> https
-```
-
-**Rollback se o Caddy der problema** (volta ao modo antigo, só porta 80):
-
-```bash
-cd /home/ubuntu/app
-git revert HEAD && bash /home/ubuntu/d3.sh
-```
+> Site novo + domínio novo = resultados levam **semanas a meses**.
+> Backlinks são o que mais acelera.
 
 ---
 
-## 🧭 Decisões que já foram tomadas (não reabrir)
+## 🧭 Antes de VENDER (limpeza de dados pessoais)
 
-- **Instância:** `VM.Standard.E2.1.Micro` — o `A1.Flex` não teve capacidade
-  na região. Always Free elegível.
-- **HTTPS:** Caddy + Let's Encrypt automático (sem cron/certbot).
-- **Caddy na frente:** o Next **não** publica mais a 80; ele fica só em
-  `127.0.0.1:3000`. Portas 80/443 são do Caddy.
-- **`SITE_URL` em runtime** (`build.args` + `environment`) — não `NEXT_PUBLIC_*`,
-  porque isso seria embutido no bundle no build.
-- **Verificação do Google:** etiqueta HTML, constante `GOOGLE_SITE_VERIFICATION`
-  (vazia = não emite meta).
-- **Canonical:** `alternates: { canonical: "./" }` no root — o Next resolve `./`
-  contra o pathname atual, então cada rota emite o próprio.
-  (Fonte: `node_modules/next/dist/lib/metadata/resolvers/resolve-url.js`.)
+Ver **seção 7 do `RUNBOOK.md`**. O site exibe hoje:
+
+- Nome da profissional (Beatriz Ribeiro) e de clientes em depoimentos
+- WhatsApp, endereço, e-mail, Instagram, chave PIX/CNPJ
+
+Tudo isso é **conteúdo do negócio** — decide-se na venda o que
+fica, o que sai e o que se anonimiza.
+
+---
+
+## 🗑️ Para apagar antes de entregar
+
+- [ ] `PENDENCIAS.md` (este arquivo)
+- [ ] `deploy/` (chaves SSH)
+- [ ] `data/` (banco com admins e e-mails)
+- [ ] `uploads/` (fotos dos trabalhos)
+- [ ] `.env*`
