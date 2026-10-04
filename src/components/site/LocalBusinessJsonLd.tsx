@@ -46,6 +46,18 @@ const WEEKDAY_ISO = [
 ];
 
 /**
+ * 270 → "PT4H30M" (ISO 8601). É como o schema.org espera a duração, e é o
+ * que faz o Google mostrar "4h30" ao lado do procedimento nos resultados.
+ */
+function isoDuration(minutes: number): string {
+  const total = Math.max(0, Math.round(minutes || 0));
+  const h = Math.floor(total / 60);
+  const m = total % 60;
+  if (!h) return `PT${m}M`;
+  return m ? `PT${h}H${m}M` : `PT${h}H`;
+}
+
+/**
  * Separa a string de endereço ("Rua X, 100 — Bairro, Cidade/UF") nas
  * partes que o schema espera. Se algo mudar de formato, cai no valor cheio
  * em vez de quebrar.
@@ -135,6 +147,8 @@ export function LocalBusinessJsonLd() {
           name: s.name,
           description: s.description || undefined,
           serviceType: s.category,
+          // Duração do procedimento — vem do painel (Serviços → Duração).
+          timeRequired: isoDuration(s.duration_min),
         },
         price: (s.price_cents / 100).toFixed(2),
         priceCurrency: "BRL",
