@@ -28,9 +28,9 @@ const sans = Jost({
  * Deixe VAZIO até gerar a tag. Enquanto estiver vazio, NENHUMA etiqueta é
  * emitida no HTML (não adianta colocar texto placeholder: o Google rejeita).
  *
- * Como gerar:
+ * Como gerar (usando o domínio, que já está no ar com HTTPS):
  *   1. https://search.google.com/search-console → Adicionar propriedade
- *   2. Prefixo de URL → http://147.15.117.149/
+ *   2. Prefixo de URL → https://studiolisoespelhado.com.br/
  *   3. Método "Etiqueta HTML" → copie só o valor de content="..."
  *   4. Cole entre as asas abaixo e faça o deploy
  */
@@ -49,12 +49,17 @@ export function generateMetadata(): Metadata {
     },
     description,
     keywords: seo?.keywords,
+    // "./" é resolvido contra a URL da página atual (resolveRelativeUrl),
+    // então cada rota emite o PRÓPRIO canonical — nunca o da home.
+    alternates: { canonical: "./" },
     openGraph: {
       type: "website",
       locale: "pt_BR",
       siteName: site?.name || "Studio Liso Espelhado",
       title,
       description,
+      // mesmo truque do canonical: vira a URL da rota atual
+      url: "./",
     },
     robots: { index: true, follow: true },
     // só emite <meta name="google-site-verification"> se houver valor real

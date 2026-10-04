@@ -108,6 +108,20 @@ git pull
 docker compose up -d --build      # build ~6 min em máquina de 1 GB
 ```
 
+> ⚠️ **Não rode build longo dentro de um `ssh "comando"`** — a conexão cai
+> (15 min é o limite usual do SSH inativo) e você perde a saída. Rode
+> desanexado e acompanhe por log:
+>
+> ```bash
+> scp script.sh <host>:/tmp/
+> ssh <host> "setsid nohup bash /tmp/script.sh > /tmp/d.log 2>&1 < /dev/null &"
+> ssh <host> "tail -f /tmp/d.log"     # Ctrl+C só sai do tail, o build continua
+> ```
+>
+> Se a conexão cair, **o build costuma continuar no servidor** — confira com
+> `docker compose ps` antes de rodar de novo (rodar duas vezes é só perda de tempo).
+
+
 **Variáveis que precisam existir (não commite valores reais):**
 
 | Variável | Onde | Observação |
