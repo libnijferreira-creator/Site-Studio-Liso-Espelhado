@@ -22,7 +22,11 @@ Atualizado em: **04/10/2026** (manhã)
 | 9 | Robots | `Sitemap: https://…/sitemap.xml` |
 | 10 | Zero `localhost` e zero IP no HTML | `grep` = 0 |
 | 11 | Admin com `noindex` | todas as rotas `/admin/*` |
-| 12 | Código no GitHub | último commit `9de5ea7` |
+| 12 | Código no GitHub | último commit `c110c5e` |
+| 13 | **Canonical por página** | cada rota emite o **próprio** (`./` resolvido no render) |
+| 14 | **`og:url` por página** | igual ao canonical, em todas as rotas |
+| 15 | Certificado Let's Encrypt | `CN=studiolisoespelhado.com.br`, **04/10/2026 → 02/01/2027**, renova sozinho |
+| 16 | Redirect `http` → `https` | **308** em apex **e** www |
 
 ---
 
@@ -40,6 +44,9 @@ Atualizado em: **04/10/2026** (manhã)
 > O comentário no `layout.tsx` já aponta para o domínio, não mais para o IP.
 
 ### 2. `og:title` igual em todas as páginas ⚠️ *(qualidade de compartilhamento)*
+> ✅ **`og:url` e `canonical` já estão certos** (deploy `c110c5e`) — só falta
+> o **título** da prévia.
+
 Hoje, quem manda o link de `/servicos` ou `/promocoes` no WhatsApp vê o
 **título da home** na prévia. Causa: `generateMetadata` do root define o
 `openGraph` inteiro, e as páginas filhas só sobrescrevem `title`/`description`.
