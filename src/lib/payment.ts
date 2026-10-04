@@ -6,6 +6,8 @@
  *   confirmação é feita manualmente pela própria tela de pagamento.
  */
 
+import { siteBaseUrl } from "./site-url";
+
 export const MP_TOKEN = process.env.MERCADOPAGO_ACCESS_TOKEN || "";
 export const MP_API = "https://api.mercadopago.com";
 
@@ -77,7 +79,7 @@ export async function createPixCharge(params: {
       description: params.description,
       external_reference: params.reference,
       payment_method_id: "pix",
-      notification_url: `${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/webhooks/mercadopago`,
+      notification_url: `${siteBaseUrl()}/api/webhooks/mercadopago`,
       payer: {
         name: params.payer.name,
         email: params.payer.email || undefined,
@@ -148,11 +150,11 @@ export async function createCardCheckout(params: {
         excluded_payment_types: [{ id: "ticket" }],
         installments: 12,
       },
-      notification_url: `${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/webhooks/mercadopago`,
+      notification_url: `${siteBaseUrl()}/api/webhooks/mercadopago`,
       back_urls: {
-        success: `${process.env.NEXT_PUBLIC_BASE_URL || ""}/agendar/confirmado`,
-        pending: `${process.env.NEXT_PUBLIC_BASE_URL || ""}/agendar/confirmado`,
-        failure: `${process.env.NEXT_PUBLIC_BASE_URL || ""}/agendar`,
+        success: `${siteBaseUrl()}/agendar/confirmado`,
+        pending: `${siteBaseUrl()}/agendar/confirmado`,
+        failure: `${siteBaseUrl()}/agendar`,
       },
       auto_return: "approved",
     },

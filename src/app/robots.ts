@@ -1,8 +1,12 @@
 import type { MetadataRoute } from "next";
+import { siteBaseUrl } from "@/lib/site-url";
 
-const BASE = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+// igual ao sitemap.xml: senão o Sitemap: aponta para a URL do build.
+export const dynamic = "force-dynamic";
 
 export default function robots(): MetadataRoute.Robots {
+  const BASE = siteBaseUrl();
+
   return {
     rules: [
       {

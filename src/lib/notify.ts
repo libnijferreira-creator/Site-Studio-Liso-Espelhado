@@ -1,4 +1,5 @@
 import { getDb, getSetting } from "./db";
+import { siteBaseUrl } from "./site-url";
 import { DEFAULT_SETTINGS } from "./defaults";
 import { formatBRL, formatDateLong, formatDuration } from "./format";
 import type { NotificationsSettings } from "./types";
@@ -37,9 +38,7 @@ export function waLink(phone: string, message: string): string {
 }
 
 function baseUrl(): string {
-  const fromEnv = process.env.NEXT_PUBLIC_BASE_URL?.trim();
-  if (fromEnv) return fromEnv.replace(/\/$/, "");
-  return "http://localhost:3000";
+  return siteBaseUrl();
 }
 
 type AppointmentInfo = {

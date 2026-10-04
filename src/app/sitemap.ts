@@ -1,8 +1,13 @@
 import type { MetadataRoute } from "next";
+import { siteBaseUrl } from "@/lib/site-url";
 
-const BASE = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+// Sem isto, o Next trata sitemap.xml como rota estática e grava a URL do
+// build (IP/domínio de quando o Docker image foi criado). `force-dynamic`
+// faz a URL ser lida do ambiente a cada requisição.
+export const dynamic = "force-dynamic";
 
 export default function sitemap(): MetadataRoute.Sitemap {
+  const BASE = siteBaseUrl();
   const now = new Date();
 
   const routes = [

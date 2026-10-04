@@ -5,6 +5,7 @@ import { Header } from "@/components/site/Header";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { MobileCta } from "@/components/site/MobileCta";
 import { getSiteSettings } from "@/lib/queries";
+import { siteBaseUrl } from "@/lib/site-url";
 
 const display = Cormorant_Garamond({
   variable: "--font-cormorant",
@@ -27,7 +28,7 @@ export function generateMetadata(): Metadata {
   const description = seo?.description || site?.description || "";
 
   return {
-    metadataBase: new URL("https://studiolisoespelhado.com.br"),
+    metadataBase: new URL(siteBaseUrl()),
     title: {
       default: title,
       template: "%s | Studio Liso Espelhado",

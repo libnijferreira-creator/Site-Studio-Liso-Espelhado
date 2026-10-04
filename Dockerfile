@@ -4,6 +4,11 @@ FROM node:24-slim AS build
 
 WORKDIR /app
 
+# Endereço público usado pelo metadataBase durante a pré-renderização.
+# Composto a partir de build.args em docker-compose.yml.
+ARG SITE_URL
+ENV SITE_URL=${SITE_URL}
+
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Dependências primeiro (cache de camada)

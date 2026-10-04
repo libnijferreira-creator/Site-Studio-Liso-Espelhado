@@ -1,8 +1,22 @@
 # Studio Liso Espelhado — sobe o site com Docker
-# Antes de rodar: edite ADMIN_PASSWORD e NEXT_PUBLIC_BASE_URL (abaixo).
+#
+# Antes de rodar, edite os dois blocos marcados com "TROQUE":
+#   1) ADMIN_PASSWORD       — senha do painel (só vale na 1ª inicialização)
+#   2) SITE_URL             — endereço público usado em sitemap/robots/canonical
+#
+# SITE_URL aparece em DOIS lugares de propósito:
+#   - build.args  → grava o endereço no HTML pré-renderizado (metadataBase)
+#   - environment → é o valor lido em tempo de execução pelo /sitemap.xml e
+#                   /robots.txt (rotas dinâmicas), ou seja, o que o Google lê
+# Ao trocar o IP pelo domínio, altere AMBAS as linhas para
+#   https://studiolisoespelhado.com.br
+# e rode:  docker compose up -d --build
 services:
   studio:
-    build: .
+    build:
+      context: .
+      args:
+        SITE_URL: "http://147.15.117.149"          # TROQUE
     image: studio-liso:latest
     container_name: studio-liso
     restart: unless-stopped
@@ -16,5 +30,7 @@ services:
       # Usado APENAS na primeira inicialização (criação do banco).
       ADMIN_USER: "admin"
       ADMIN_PASSWORD: "TROQUE-ESTA-SENHA"
-      # Endereço público do site (coloque o IP ou domínio da instância).
-      NEXT_PUBLIC_BASE_URL: "http://TROQUE-SEU-IP"
+      # Endereço público do site — leitura em runtime (sitemap/robots/MP).
+      SITE_URL: "http://147.15.117.149"            # TROQUE
+      # Reserva: ainda é lida como fallback pelo siteBaseUrl().
+      NEXT_PUBLIC_BASE_URL: "http://147.15.117.149"
