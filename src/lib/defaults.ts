@@ -66,7 +66,7 @@ export const DEFAULT_SETTINGS: Record<string, unknown> = {
     // Celulares que recebem o aviso de AGENDAMENTO e de PAGAMENTO (um por
     // linha). Editável no painel: Conteúdo → Avisos.
     studioPhone: "(24) 98153-1771",
-    studioPhones: "(24) 98153-1771\n(24) 98751-011",
+    studioPhones: "(24) 98153-1771\n(24) 99875-1011",
     clientEmailEnabled: true,
     studioEmailEnabled: true,
     // Quem assina os lembretes de pagamento no Agenda → "Não confirmados".
